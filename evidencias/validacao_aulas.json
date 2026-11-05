@@ -1,0 +1,29 @@
+{
+  "vertex_color_pixels_changed": 403644,
+  "uv_grid_pixels_changed": 514569,
+  "filter_pixels_changed": 227420,
+  "focus_pixels_changed": 573361,
+  "wireframe_pixels_changed": 576290,
+  "interpolation_rgb_samples": [
+    [
+      64,
+      64,
+      51
+    ],
+    [
+      128,
+      128,
+      51
+    ],
+    [
+      191,
+      191,
+      51
+    ]
+  ],
+  "uv_origin_repeat_offset": "PASS",
+  "grayscale": "PASS",
+  "shadow_filter_preserved": "PASS",
+  "animation_unchanged": "PASS",
+  "gl_error": 0
+}

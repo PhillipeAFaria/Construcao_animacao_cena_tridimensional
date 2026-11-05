@@ -7,6 +7,12 @@ from py3d.core_ext.mesh import Mesh
 from py3d.geometry.box import BoxGeometry
 from py3d.geometry.cylinder import CylinderGeometry
 from py3d.material.phong import PhongMaterial
+from py3d.core_ext.texture import Texture
+from py3d.geometry.rectangle import RectangleGeometry
+from pathlib import Path
+from geometry_tools import apply_gradient
+
+ASSETS=Path(__file__).resolve().parent/'assets'
 
 def transform(node, pos=(0,0,0), yaw=0, pitch=0, roll=0, scale=(1,1,1)):
     node.local_matrix = (Matrix.make_translation(*pos) @ Matrix.make_rotation_y(yaw)
@@ -18,12 +24,25 @@ class Models:
         self.box = BoxGeometry()
         self.cylinder = CylinderGeometry(radius=1, height=1, radial_segments=20)
         self.materials = {}
+        self.textures = {}
+        apply_gradient(self.box)
+        apply_gradient(self.cylinder)
 
-    def material(self, color):
-        key = tuple(color)
+    def material(self, color, texture_name=None):
+        # Cor uniforme, cor por vértice e textura são canais independentes.
+        gradient=tuple(color) in ((.93,.48,.10),(.12,.62,.53))
+        if tuple(color)==(.12,.62,.53) and texture_name is None:
+            texture_name='escamas.png'
+        key = (tuple(color),texture_name)
         if key not in self.materials:
-            self.materials[key] = PhongMaterial(number_of_light_sources=2, use_shadow=True,
-                property_dict={'baseColor':color, 'specularStrength':.18, 'shininess':24})
+            texture=None
+            if texture_name:
+                if texture_name not in self.textures:
+                    self.textures[texture_name]=Texture(str(ASSETS/texture_name))
+                texture=self.textures[texture_name]
+            self.materials[key] = PhongMaterial(texture=texture,number_of_light_sources=2, use_shadow=True,
+                property_dict={'baseColor':color, 'specularStrength':.18, 'shininess':24,
+                               'useVertexColors':gradient})
         return self.materials[key]
 
     def part(self, parent, pos, size, color, cylinder=False, roll=0):
@@ -43,10 +62,10 @@ class Models:
         orange, dark, white = (.93,.48,.10), (.10,.15,.19), (.83,.88,.86)
         self.part(root,(0,.88,0),(1.65,.48,1.18),orange)
         self.part(root,(-.18,1.20,0),(1.05,.18,1.0),dark)
-        # Painel solar: pequenas células de caixas, sem modelo externo.
-        for x in (-.5,-.18,.14):
-            for z in (-.31,0,.31):
-                self.part(root,(x,1.30,z),(.27,.025,.26),(.08,.28,.40))
+        # Mesma geometria retangular, aparência definida por PNG e UV [0,1].
+        solar=Mesh(RectangleGeometry(width=1.02,height=.94),self.material((1,1,1),'solar.png'))
+        transform(solar,(-.18,1.30,0),pitch=-pi/2)
+        root.add(solar)
         wheels=[]
         for x in (-.58,.58):
             for z in (-.73,.73):
@@ -81,7 +100,7 @@ class Models:
 
     def dinosaur(self, scene):
         root=self.pivot(scene,(0,0,0))
-        green=(.25,.54,.31); light=(.54,.72,.34); dark=(.12,.28,.19)
+        green=(.12,.62,.53); light=(.71,.77,.44); dark=(.09,.27,.25)
         self.part(root,(0,1.38,0),(1.0,1.13,1.5),green)
         self.part(root,(0,1.25,.76),(.68,.75,.08),light)
         self.part(root,(0,2.05,.42),(.70,.65,.72),green)

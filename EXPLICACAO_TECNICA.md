@@ -33,9 +33,10 @@ Rodas: `ângulo = -distância / raio`, com raio 0,38. Pernas: seno em oposição
 |---|---|---|
 | vertexPosition | vec3 | Posição local; passa pelas matrizes M, V e P. Location 0 fixada em Phong e depth para reutilizar corretamente o VAO na passagem de sombras. |
 | vertexNormal | vec3 | Normal local por face ou superfície; usada na iluminação Phong. |
-| vertexUV | vec2 | Coordenada de textura; usada no chão e no painel. |
+| vertexUV | vec2 | Coordenada de textura usada no terreno, pista, painel solar, dinossauro, placa e HUD. |
+| vertexColor | vec3 | Cor por vértice, interpolada pela rasterização e multiplicada ao material quando `useVertexColors` está ativo. |
 
-As geometrias também fornecem `vertexColor` e `faceNormal`, mas os shaders usados nesta cena não os consomem; a associação ignora atributos sem localização ativa. A cor das peças vem do uniform `baseColor`.
+As geometrias também fornecem `faceNormal`, não consumido pelos shaders desta cena. A aparência pode combinar cor uniforme `baseColor`, cor interpolada `vertexColor`, imagem PNG e iluminação. `Mesh` valida a quantidade de elementos de cada atributo antes de criar o VAO.
 
 ## Uniforms e shaders
 
@@ -46,7 +47,10 @@ As geometrias também fornecem `vertexColor` e `faceNormal`, mas os shaders usad
 | modelMatrix | Leva o modelo local ao mundo, incluindo a hierarquia |
 | viewMatrix | Inversa da matriz global da câmera; mundo para câmera |
 | projectionMatrix | Perspectiva na câmera principal; ortográfica na câmera da luz e no painel |
-| baseColor | Cor de cada material |
+| baseColor | Cor-base uniforme de cada material |
+| useVertexColors | Habilita a multiplicação pela cor interpolada dos vértices |
+| focusFactor | Reduz saturação/brilho do ambiente no modo de foco |
+| grayScale | Conversão ilustrativa dos materiais da cena para cinza |
 | useTexture / textureSampler | Ativa e amostra PNG ou textura do painel; unidade 1 |
 | viewPosition | Posição da câmera para o brilho especular |
 | specularStrength / shininess | Intensidade e concentração do brilho |
@@ -55,7 +59,7 @@ As geometrias também fornecem `vertexColor` e `faceNormal`, mas os shaders usad
 | shadow0.viewMatrix / projectionMatrix | Transformam cada fragmento para o espaço da câmera da luz |
 | shadow0.depthTextureSampler | Mapa produzido na primeira passagem; unidade 3 |
 | shadow0.lightDirection / strength / bias | Direção da luz, intensidade da sombra e tolerância contra auto-sombreamento |
-| repeatUV / offsetUV | Escala e deslocamento das UV do painel; valores padrão 1 e 0 |
+| repeatUV / offsetUV | Escala e deslocamento das UV no Phong e no HUD; padrão 1 e 0. Terreno usa [9,7]; pista usa [9,2.3]. |
 
 O Phong herdado também envia `useBumpTexture=False`. Bump mapping não é usado; seus ramos ficam desativados. Os uniforms de luz pontual e bump sem uso podem ser eliminados pelo compilador GLSL. Não alegar esses recursos como implementados.
 
@@ -93,3 +97,13 @@ O anel de reconhecimento é composto por 24 caixas finas, com translação e rot
 `HUD.draw` usa cache do texto e atualiza a textura quando muda o estado, uma preferência ou o décimo de segundo exibido. A geometria da linha do tempo é desenhada na superfície Pygame do painel. A captura F12 é adiada até o fim da renderização do quadro atual para evitar salvar o buffer de um quadro anterior.
 
 O renderizador calcula as matrizes globais de todos os nós uma vez por quadro e as reutiliza nas duas passagens. Os uniforms que não variam por objeto são enviados uma vez por material a cada chamada de renderização; a matriz de modelo continua sendo enviada para cada malha. Uniforms pertencem ao programa e sobrevivem à troca de programa, mas bindings de textura são globais; por isso os samplers são religados quando um material texturizado é reutilizado. O cache não atravessa quadros, permitindo mudar materiais, câmeras e luzes sem invalidadores adicionais. A ordem de desenho original é mantida.
+
+## Extensão didática da versão 1.2
+
+Os três PDFs fornecidos foram aplicados conforme `APLICACAO_DOS_PDFS.md`, com páginas e arquivos correspondentes. O vertex shader recebe `vertexColor`, envia `interpolatedColor` ao fragment shader e deixa o rasterizador interpolar esse atributo nas superfícies preenchidas. O shader combina `baseColor * interpolatedColor * textura` quando os canais estão ativos, antes da iluminação. O gradiente é dado por vértice; não é uma textura nem uma variação calculada pela normal.
+
+As coordenadas de textura são `vertexUV * repeatUV + offsetUV`. O terreno e a pista repetem suas imagens por `GL_REPEAT`; o painel solar usa uma imagem inteira. O laboratório alterna as imagens e a grade UV sem reconstruir geometrias. A rotação e escala do retângulo do painel solar demonstram a aplicação de uma imagem 2D a uma superfície 3D integrada ao rover.
+
+`Appearance.refresh` altera uniforms e filtros apenas em resposta aos comandos. Ele não muda a simulação e não faz upload de imagens a cada quadro. A textura de sombras e a do HUD não são incluídas na troca dos filtros de cor. O cache de uniforms do renderizador continua válido porque é recriado a cada chamada de renderização, e os bindings de samplers são restabelecidos ao reutilizar materiais.
+
+No modo de foco, o shader aproxima a cor do ambiente de sua intensidade RGB ponderada e reduz seu brilho. Os materiais dos personagens e do indicador de reconhecimento são preservados. No modo cinza, converte os materiais da cena, mantendo o painel e o fundo independentes. São comparações gráficas ilustrativas, não modelos fisiológicos de visão. O modo malha altera `glPolygonMode` na passagem principal; o shadow mapping permanece preenchido.

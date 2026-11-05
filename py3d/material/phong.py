@@ -16,6 +16,11 @@ class PhongMaterial(LightedMaterial):
                  use_shadow=False):
         super().__init__(number_of_light_sources)
         self.add_uniform("vec3", "baseColor", [1.0, 1.0, 1.0])
+        self.add_uniform("bool", "useVertexColors", False)
+        self.add_uniform("vec2", "repeatUV", [1.0, 1.0])
+        self.add_uniform("vec2", "offsetUV", [0.0, 0.0])
+        self.add_uniform("float", "focusFactor", 1.0)
+        self.add_uniform("bool", "grayScale", False)
 
         if texture is None:
             self.add_uniform("bool", "useTexture", False)

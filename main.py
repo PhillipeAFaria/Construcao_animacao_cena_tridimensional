@@ -16,6 +16,8 @@ from py3d.light.directional import DirectionalLight
 from py3d.material.phong import PhongMaterial
 from models import Models, transform
 from simulation import Simulation
+from appearance import Appearance
+from geometry_tools import apply_gradient
 
 ROOT=Path(__file__).resolve().parent
 LABELS=('01 / APROXIMACAO', '02 / RECONHECIMENTO', '03 / RESPOSTA',
@@ -36,7 +38,7 @@ class Application:
         pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE,24)
         self.size=(1200,760)
         pygame.display.set_mode(self.size,pygame.OPENGL|pygame.DOUBLEBUF)
-        pygame.display.set_caption('ORBITA / Parque Jurassico 1.1 | Espaco: pausa | H: ajuda')
+        pygame.display.set_caption('ORBITA / Parque Jurassico 1.2 | F1: laboratorio | Espaco: pausa')
         self.renderer=Renderer([.11,.18,.22])
         self.scene=Scene()
         self.camera=Camera(angle_of_view=48, aspect_ratio=self.size[0]/self.size[1],far=100)
@@ -51,6 +53,7 @@ class Application:
         self.renderer.shadow_object.camera.set_orthographic(-14,14,-12,12,.1,40)
         self.renderer.shadow_object._bias=.0018
         self.environment()
+        self.appearance=Appearance(self.scene,[self.rover,self.dino]+[mesh for mesh,_ in self.scan_ring])
         self.azimuth=-.65; self.elevation=.46; self.radius=17
         self.target=[-.6,1,0]
         self.camera_mode='LIVRE'
@@ -64,16 +67,19 @@ class Application:
 
     def environment(self):
         ground=RectangleGeometry(width=28,height=20)
-        uv=ground.attribute_dict['vertexUV']
-        uv.data=[[u*9,v*7] for u,v in uv.data]; uv.upload_data()
+        apply_gradient(ground,low=(.72,.77,.73),high=(1,1,.96),axis=0)
         material=PhongMaterial(texture=Texture(str(ROOT/'assets/terreno.png')),
             number_of_light_sources=2,use_shadow=True,
-            property_dict={'specularStrength':.02,'baseColor':[.75,.83,.74]})
+            property_dict={'specularStrength':.02,'baseColor':[1,1,1],
+                           'useVertexColors':True,'repeatUV':[9,7]})
         floor=Mesh(ground,material); floor.rotate_x(-math.pi/2); self.scene.add(floor)
         self.models.part(self.scene,(0,-.32,0),(28,.60,20),(.20,.29,.28))
         self.models.part(self.scene,(0,-.065,0),(28,.12,20),(.38,.48,.33))
         # Pista de demonstração paralela ao eixo X e marcos de destino.
-        self.models.part(self.scene,(-.8,.014,0),(18,.025,4.6),(.27,.35,.32))
+        road_material=self.models.material((1,1,1),'asfalto.png')
+        road_material.set_properties({'repeatUV':[9,2.3],'specularStrength':.03})
+        road=Mesh(self.models.box,road_material)
+        transform(road,(-.8,.014,0),scale=(18,.025,4.6));self.scene.add(road)
         for z in (-2.18,2.18):
             self.models.part(self.scene,(-.8,.035,z),(18,.02,.065),(.86,.79,.44))
         for x in range(-9,9,2):
@@ -158,6 +164,16 @@ class Application:
             elif event.key==pygame.K_SPACE: self.sim.paused=not self.sim.paused
             elif event.key==pygame.K_r: self.sim.reset()
             elif event.key==pygame.K_h: self.show_help=not self.show_help
+            elif event.key==pygame.K_F1: self.appearance.panel=not self.appearance.panel
+            elif event.key in (pygame.K_F3,pygame.K_F4,pygame.K_F5,pygame.K_F6,pygame.K_F7,pygame.K_F8):
+                settings=self.appearance
+                if event.key==pygame.K_F3: settings.gradients=not settings.gradients
+                elif event.key==pygame.K_F4: settings.uv_debug=not settings.uv_debug
+                elif event.key==pygame.K_F5: settings.filter_mode=(settings.filter_mode+1)%3
+                elif event.key==pygame.K_F6: settings.focus=not settings.focus
+                elif event.key==pygame.K_F7: settings.gray=not settings.gray
+                elif event.key==pygame.K_F8: settings.wireframe=not settings.wireframe
+                settings.refresh()
             elif event.key==pygame.K_c:
                 self.camera_mode='LIVRE' if self.camera_mode=='ACOMPANHAR' else 'ACOMPANHAR'
             elif event.key==pygame.K_l: self.loop=not self.loop
@@ -194,7 +210,7 @@ class Application:
             self.controls(real_dt)
             self.apply_pose()
             self.renderer.render(self.scene,self.camera)
-            self.hud.draw(self.sim,self.show_help,self.speed,self.camera_mode,self.loop,self.shadows)
+            self.hud.draw(self.sim,self.show_help,self.speed,self.camera_mode,self.loop,self.shadows,self.appearance)
             if self.pending_capture:
                 self.capture(out/'captura.png'); self.pending_capture=False
             if self.args.validate and frame in captures:
@@ -204,7 +220,7 @@ class Application:
             pygame.display.flip()
             frame+=1
             if self.args.validate and frame>=1000:
-                report={'versao':'1.1','frames':frame,'estado_final':self.sim.name,
+                report={'versao':'1.2','frames':frame,'estado_final':self.sim.name,
                     'opengl':GL.glGetString(GL.GL_VERSION).decode(),
                     'gpu':GL.glGetString(GL.GL_RENDERER).decode(),
                     'gl_error':int(error),'shadow_resolution':2048}
@@ -235,8 +251,9 @@ class HUD:
         self.font=pygame.font.SysFont('segoeui',17)
         self.last=None
 
-    def draw(self,sim,help_on,speed=1.0,camera='LIVRE',loop=False,shadows=True):
-        key=(sim.stage,sim.paused,help_on,int(sim.time*10),speed,camera,loop,shadows)
+    def draw(self,sim,help_on,speed=1.0,camera='LIVRE',loop=False,shadows=True,appearance=None):
+        key=(sim.stage,sim.paused,help_on,int(sim.time*10),speed,camera,loop,shadows,
+             appearance.state if appearance else None)
         if key!=self.last:
             surface=self.texture.surface; surface.fill((0,0,0,0))
             ink=(229,238,223); muted=(170,196,188); mint=(90,218,182)
@@ -246,6 +263,18 @@ class HUD:
             surface.blit(self.title.render('Encontro no parque',True,ink),(42,58))
             surface.blit(self.font.render(LABELS[sim.stage],True,mint),(42,95))
             surface.blit(self.font.render(DESCRIPTIONS[sim.stage],True,muted),(42,125))
+            if appearance and appearance.panel:
+                pygame.draw.rect(surface,(12,29,34,247),(22,176,338,246),border_radius=12)
+                surface.blit(self.font.render('LABORATORIO VISUAL  /  F1 fecha',True,mint),(39,189))
+                lines=(f'F3  Cores de vertices: {"sim" if appearance.gradients else "nao"}',
+                    f'F4  Texturas: {"grade UV" if appearance.uv_debug else "materiais"}',
+                    f'F5  Filtro: {appearance.FILTER_NAMES[appearance.filter_mode]}',
+                    f'F6  Foco nos personagens: {"sim" if appearance.focus else "nao"}',
+                    f'F7  Cena em cinza: {"sim" if appearance.gray else "nao"}',
+                    f'F8  Superficies: {"malha" if appearance.wireframe else "preenchidas"}',
+                    'Comparacoes preservam a coreografia.')
+                for i,line in enumerate(lines):
+                    surface.blit(self.font.render(line,True,ink),(39,224+i*26))
             pygame.draw.rect(surface,(12,29,34,238),(936,22,242,140),border_radius=14)
             status='PAUSADO' if sim.paused else ('CONCLUIDO' if sim.stage==4 else 'EM ANDAMENTO')
             surface.blit(self.font.render(status,True,(244,202,112) if sim.paused else mint),(954,36))
@@ -267,7 +296,8 @@ class HUD:
                 label=self.font.render(text,True,ink if i==sim.stage else muted)
                 surface.blit(label,(x-label.get_width()/2,panel_y+43))
             if help_on:
-                for i,line in enumerate(('ESPACO pausa  /  R reinicia  /  1-2-3 cameras  /  C acompanha  /  [ ] velocidade  /  L repete',
+                pygame.draw.rect(surface,(12,29,34,245),(22,688,1156,62),border_radius=10)
+                for i,line in enumerate(('ESPACO pausa  /  R reinicia  /  1-2-3 cameras  /  C acompanha  /  [ ] velocidade  /  L repete  /  F1 laboratorio',
                     'SETAS orbita  /  W-S zoom  /  A-D desloca  /  Q-E altura  /  F2 sombras  /  F12 captura  /  H ajuda  /  ESC sai')):
                     surface.blit(self.font.render(line,True,ink),(38,695+i*26))
             self.texture.upload_data(); self.last=key

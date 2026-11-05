@@ -1,3 +1,3 @@
-terreno.png: imagem original gerada por tools/gerar_textura.py com Python/Pillow.
-placa.png: imagem original gerada por tools/gerar_placa.py com Python/Pillow e fonte do sistema. O arquivo da fonte nao e distribuido.
-Apoio: OpenAI Codex. Sem imagens externas; os PNGs sao carregados de arquivos e nao sao texturas procedurais calculadas no shader.
+terreno.png, asfalto.png, solar.png, escamas.png e grade_uv.png: imagens originais geradas por tools/gerar_materiais.py com Python/Pillow e semente deterministica.
+placa.png: imagem original gerada por tools/gerar_placa.py.
+Apoio: OpenAI Codex. Fontes rasterizadas usam arquivo do sistema, que nao e distribuido. Nenhuma figura dos PDFs foi copiada. As texturas sao PNGs carregados de arquivo, nao texturas procedurais calculadas no shader.

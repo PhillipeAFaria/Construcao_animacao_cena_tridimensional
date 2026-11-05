@@ -10,6 +10,7 @@ class Mesh(Object3D):
     """
     def __init__(self, geometry, material):
         super().__init__()
+        geometry.validate_attributes()
         self._geometry = geometry
         self._material = material
         # Should this object be rendered?

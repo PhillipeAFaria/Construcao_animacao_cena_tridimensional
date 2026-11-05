@@ -58,6 +58,10 @@
             }
 
             uniform vec3 baseColor;
+            uniform bool useVertexColors;
+            uniform float focusFactor;
+            uniform bool grayScale;
+            in vec3 interpolatedColor;
             uniform bool useTexture;
             uniform sampler2D textureSampler;
             uniform bool useBumpTexture;
@@ -90,6 +94,8 @@
             void main()
             {
                 vec4 color = vec4(baseColor, 1.0);
+                if (useVertexColors)
+                    color.rgb *= interpolatedColor;
                 if (useTexture) 
                 {
                     color *= texture(textureSampler, UV );
@@ -130,6 +136,12 @@
                     }
                 }  
                 
+                // Perceptual comparison, not a clinical model of human vision.
+                float luminance = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
+                color.rgb = mix(vec3(luminance), color.rgb, focusFactor);
+                color.rgb *= mix(0.60, 1.0, focusFactor);
+                if (grayScale)
+                    color.rgb = vec3(dot(color.rgb, vec3(0.2126, 0.7152, 0.0722)));
                 fragColor = color;
             }
         

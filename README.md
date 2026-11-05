@@ -1,6 +1,6 @@
-# Órbita — Parque Jurássico 1.1
+# Órbita — Parque Jurássico 1.2
 
-Rover explorador + dinossauro de blocos. Versão aprimorada; a entrega anterior permanece separada.
+Rover explorador + dinossauro de blocos. Versão aprimorada a partir dos três PDFs das aulas; as versões anteriores permanecem separadas. Consulte `APLICACAO_DOS_PDFS.md` para a relação entre páginas, conceitos e código.
 
 Aplicação 3D acadêmica em Python, Pygame e OpenGL, usando componentes de uma implementação pública do framework de Stemkoski e Pascale. Os modelos e a coreografia desta cena foram construídos especificamente para esta atividade, com apoio de IA declarado abaixo.
 
@@ -66,6 +66,13 @@ Se a janela falhar antes de aparecer, confira a versão do Python e atualize o d
 | L | Alternar repetição automática (desligada por padrão) |
 | F2 | Comparar cena com/sem sombra projetada; iluminação permanece ativa |
 | Roda do mouse | Aproximar / afastar a câmera |
+| F1 | Abrir/fechar laboratório visual; não redefine os modos |
+| F3 | Alternar contribuição das cores por vértice |
+| F4 | Alternar imagens originais e grade UV nas superfícies texturizadas |
+| F5 | Percorrer NEAREST → LINEAR → MIPMAP; padrão MIPMAP |
+| F6 | Destacar personagens reduzindo saturação/brilho do ambiente |
+| F7 | Comparar materiais da cena em cinza; HUD e fundo permanecem independentes |
+| F8 | Alternar preenchimento e malha de triângulos |
 
 ## Onde está cada requisito
 
@@ -73,7 +80,7 @@ Se a janela falhar antes de aparecer, confira a versão do Python e atualize o d
 |---|---|
 | Rover com rodas e sensor | `models.py`: `Models.rover` |
 | Dinossauro de blocos articulado | `models.py`: `Models.dinosaur` |
-| Ambiente e textura PNG com UV repetidas | `main.py`: `Application.environment`; `assets/terreno.png` |
+| Ambiente e textura PNG com UV repetidas | `main.py`: `Application.environment`; `assets/terreno.png`; `repeatUV` no shader |
 | Estados e animação por tempo | `simulation.py`: `Simulation.update`, `Simulation.pose` |
 | Hierarquia, translação, rotação e escala | `models.py`: `transform`, `Models.pivot`; `py3d/core_ext/object3d.py` |
 | Câmera perspectiva e controle de teclado | `main.py`: `Application.controls`; `py3d/core_ext/camera.py` |
@@ -83,6 +90,8 @@ Se a janela falhar antes de aparecer, confira a versão do Python e atualize o d
 | Shadow mapping em duas passagens | `py3d/core_ext/renderer.py`: `Renderer.render`; `py3d/light/shadow.py`; `shaders/depth.vert`, `shaders/depth.frag` |
 | Textura de profundidade e framebuffer | `py3d/core_ext/render_target.py`: `RenderTarget` |
 | Painel de estado e linha do tempo em textura 2D | `main.py`: `HUD`; `py3d/material/texture.py` |
+| Cores por vértice e gradientes | `geometry_tools.py`; `shaders/phong.vert`, `shaders/phong.frag` |
+| Laboratório de UV, filtros e contraste | `appearance.py`; `main.py`: `Application.handle_event`, `HUD.draw` |
 | Envio de atributos e uniforms | `py3d/core/attribute.py`, `py3d/core/uniform.py` |
 
 Os shaders externos são carregados em tempo de execução. O compilador do framework acrescenta `#version 330`. Os shaders do painel são entregues em `shaders/hud.vert` e `shaders/hud.frag` e carregados por `TextureMaterial`.
@@ -101,7 +110,9 @@ Execute nesta pasta, após a instalação:
 
 O primeiro comando verifica a lógica sem abrir janela. O segundo abre OpenGL para verificar mapa de sombras dinâmico, influência visível das sombras e câmera durante a pausa. O terceiro executa 1.000 quadros com passo de simulação de 1/60 s, salva cinco imagens e `evidencias/validacao_gpu.json`, e fecha. O passo fixo existe somente nesse modo de validação; a execução normal usa o relógio real.
 
-Resultados medidos e limites estão em `VALIDACAO.md`. Os arquivos JSON e imagens acompanham a entrega. As evidências registram esta máquina, não garantem compatibilidade com todos os computadores. A versão 1.1 acrescenta filtragem PCF 3×3 às sombras e bias dependente da inclinação, preservando o shadow mapping em duas passagens. Não solicita automaticamente pontuação de bônus; esse enquadramento depende do professor. Terreno e placa são imagens PNG carregadas de arquivo.
+Para validar as melhorias baseadas nos PDFs, execute também `.\.venv\Scripts\python.exe tests/check_lessons.py`. O teste verifica interpolação RGB na GPU, origem/repetição/deslocamento UV, diferenças entre filtros, foco, cinza, malha e preservação da animação e do filtro de sombras.
+
+Resultados medidos e limites estão em `VALIDACAO.md`. Os arquivos JSON e imagens acompanham a entrega. As evidências registram esta máquina, não garantem compatibilidade com todos os computadores. A versão 1.1 acrescenta filtragem PCF 3×3 às sombras e bias dependente da inclinação, preservando o shadow mapping em duas passagens. Não solicita automaticamente pontuação de bônus; esse enquadramento depende do professor. Terreno, pista, painel solar, escamas e placa são imagens PNG carregadas de arquivo.
 
 ## Contribuições individuais
 
@@ -117,13 +128,14 @@ Resultados medidos e limites estão em `VALIDACAO.md`. Os arquivos JSON e imagen
 - STEMKOSKI, Lee; PASCALE, Michael. *Developing Graphics Frameworks with Python and OpenGL*. CRC Press. DOI: https://doi.org/10.1201/9781003181378. Referência principal, em especial shadow mapping, seção 6.9 indicada no enunciado.
 - Implementação pública de apoio: https://github.com/ax-va/PyOpenGL-Pygame-Stemkoski-Pascale-2021 — componentes em `py3d/`, baseada no livro. Foram consultados `examples/6-5--shadows.py`, classes de cena, geometria, materiais, renderização e sombras. O nome desse exemplo no repositório não altera a referência à seção 6.9 do enunciado. Consulte `FONTES_FRAMEWORK.md` para snapshot e adaptações.
 - Pygame: https://www.pygame.org/docs/ ; PyOpenGL: https://pyopengl.sourceforge.net/documentation/ ; NumPy: https://numpy.org/doc/ .
-- `assets/terreno.png` e `assets/placa.png`: imagens originais produzidas por Python/Pillow, sem imagens externas. Fontes da geração: `tools/gerar_textura.py` e `tools/gerar_placa.py`. A placa rasteriza uma fonte disponível no sistema, sem distribuir o arquivo de fonte.
+- Materiais das aulas: `Computação Gráfica - Desenhando Formas com preenchimento.pdf` (27 páginas), `2026 - Computação Gráfica - Trabalhando Texturas.pdf` (28 páginas) e `Visâo - Computação Gráfica.pdf` (20 páginas). Consulte `APLICACAO_DOS_PDFS.md` e `FONTES_PDFS.json` para conteúdo efetivamente utilizado e identificação das fontes.
+- `assets/*.png`: imagens originais, sem copiar figuras dos PDFs. Geração de terreno/asfalto/solar/escamas/grade em `tools/gerar_materiais.py`; placa em `tools/gerar_placa.py`. A placa rasteriza uma fonte do sistema sem distribuir o arquivo da fonte.
 
 ## Declaração de uso de inteligência artificial
 
-Foi utilizada a ferramenta **OpenAI Codex** para planejar a cena; escrever `main.py`, `models.py`, `simulation.py`, scripts de instalação, testes e documentação; gerar as texturas PNG por scripts; adaptar componentes e shaders de `py3d/`; executar validações e analisar capturas. O framework de terceiros foi atribuído separadamente e não é declarado como autoria da dupla ou da IA. Os integrantes devem revisar o código, testar na máquina da apresentação, registrar suas contribuições reais e compreender os trechos antes da entrega. Não afirmar que os testes automáticos substituem sua revisão individual.
+Foi utilizada a ferramenta **OpenAI Codex** para planejar a cena; escrever `main.py`, `models.py`, `simulation.py`, `appearance.py`, `geometry_tools.py`, scripts de instalação, testes e documentação; gerar as texturas PNG por scripts; adaptar componentes e shaders de `py3d/`; executar validações e analisar capturas. O framework de terceiros foi atribuído separadamente e não é declarado como autoria da dupla ou da IA. Os integrantes devem revisar o código, testar na máquina da apresentação, registrar suas contribuições reais e compreender os trechos antes da entrega. Não afirmar que os testes automáticos substituem sua revisão individual.
 
-## Melhorias da versão 1.1
+## Base preservada da versão 1.1
 
 - Rover com detalhes de pneus, cubos, antena, duas lentes e acabamento do chassi.
 - Dinossauro com cabeça e mandíbula articuladas, dentes, garras e encaixes de blocos.
@@ -137,3 +149,16 @@ Foi utilizada a ferramenta **OpenAI Codex** para planejar a cena; escrever `main
 - Renderização otimizada: reutilização das matrizes globais e redução do envio repetido de uniforms. O benchmark da mesma cena passou de 10,3 para 34,1 FPS nesta máquina; é uma medição específica, sem garantia em outros computadores.
 
 As novas partes dos modelos e o acabamento também foram elaborados com apoio do Codex. O README continua exigindo o preenchimento dos dados e das contribuições reais da dupla.
+
+## Melhorias da versão 1.2 e relação com as aulas
+
+- Atributo `vertexColor` efetivamente usado e interpolado; gradientes nos personagens e terreno, com comparação F3.
+- Materiais PNG para pista, painel solar e escamas; nova textura de terreno menos carregada visualmente.
+- UV escaladas/deslocadas por uniforms, grade UV identificada e comparação de três filtros de amostragem.
+- Paleta que diferencia rover alaranjado e dinossauro verde-azulado; modo de foco e comparação em cinza inspirados nos tópicos de atenção/contraste.
+- Inspeção da triangulação por F8 e validação dos tamanhos dos atributos antes da criação do VAO.
+- Rodapé com fundo opaco para preservar a leitura sobre imagens detalhadas, inclusive no diagnóstico UV.
+- Treze testes unitários, testes reais de GPU dos conceitos e documentação com correspondência às páginas dos PDFs.
+- Benchmark curto da versão 1.2: 34,5 FPS na máquina registrada, sem HUD/limitador. O histórico de 10,3 → 34,1 FPS acima se refere à otimização da versão 1.1; não é uma nova medição antes/depois da versão 1.2.
+
+As novas comparações são opcionais e vêm desativadas; o laboratório é aberto por F1. Cores por vértice e filtro trilinear com mipmaps fazem parte do visual padrão. Reiniciar com R não redefine preferências visuais. Nenhuma melhoria retira a interação, a câmera, a pausa ou o shadow mapping obrigatório.

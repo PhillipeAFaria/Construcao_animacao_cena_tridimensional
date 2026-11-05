@@ -22,7 +22,7 @@ Foram mantidos apenas os módulos Python transitivamente utilizados e os inicial
 
 ## Arquivos específicos desta atividade
 
-`main.py`, `models.py`, `simulation.py`, `tests/`, `tools/gerar_textura.py`, scripts de preparação, terreno PNG e documentação foram elaborados para esta solicitação com apoio do Codex. As imagens em evidencias são capturas reais da aplicação, não imagens geradas como substituição da renderização 3D.
+`main.py`, `models.py`, `simulation.py`, `tests/`, `tools/`, scripts de preparação, terreno PNG e documentação foram elaborados para esta solicitação com apoio do Codex. As imagens em evidencias são capturas reais da aplicação, não imagens geradas como substituição da renderização 3D.
 
 ## Adaptações adicionais da versão 1.1
 
@@ -32,3 +32,10 @@ Foram mantidos apenas os módulos Python transitivamente utilizados e os inicial
 - `core_ext/mesh.py`: setter público de `visible` permite ocultar e reexibir os indicadores.
 - `models.py`, `simulation.py` e `main.py`: acabamento dos modelos, smoothstep, cabeça e mandíbula articuladas, anel de reconhecimento, parque, comandos e painel ampliados, com apoio do Codex.
 - `assets/placa.png`: nova textura original, gerada por `tools/gerar_placa.py` com Pillow e uma fonte do sistema. Não foi usado gerador de imagens para substituir modelos 3D.
+
+## Adaptações adicionais da versão 1.2 com apoio do Codex
+
+- `material/phong.py` e `shaders/phong.*`: atributo de cor, passagem interpolada, `useVertexColors`, `repeatUV`, `offsetUV`, `focusFactor` e `grayScale`.
+- `geometry/geometry.py` e `core_ext/mesh.py`: validação dos comprimentos dos atributos e da contagem de vértices antes de montar o VAO.
+- `geometry_tools.py`, `appearance.py`, modelos, texturas originais e laboratório de comparações: aplicação específica dos conteúdos dos PDFs, não componentes originalmente atribuídos aos autores do framework.
+- Fontes de aula, páginas, decisões e limites: `APLICACAO_DOS_PDFS.md`; identificação por hash em `FONTES_PDFS.json`.

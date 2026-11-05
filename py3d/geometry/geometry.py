@@ -39,6 +39,18 @@ class Geometry:
                 # the length of any Attribute object's array of data
                 self._vertex_count = len(self._attribute_dict[variable_name].data)
 
+    def validate_attributes(self):
+        """All enabled streams must describe the same vertices before a VAO is built."""
+        positions=self._attribute_dict.get('vertexPosition')
+        if positions is None or not len(positions.data):
+            raise ValueError('A geometria precisa de posicoes de vertices.')
+        count=len(positions.data)
+        if self._vertex_count != count:
+            raise ValueError('vertex_count nao corresponde ao buffer de posicoes.')
+        for name,attribute in self._attribute_dict.items():
+            if len(attribute.data)!=count:
+                raise ValueError(f'Atributo {name}: {len(attribute.data)} valores para {count} vertices.')
+
     def apply_matrix(self, matrix):
         """ Transform the data in an attribute using a matrix """
         old_position_data = self._attribute_dict["vertexPosition"].data

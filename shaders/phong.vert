@@ -5,6 +5,10 @@
             layout(location=0) in vec3 vertexPosition;
             in vec2 vertexUV;
             in vec3 vertexNormal;
+            in vec3 vertexColor;
+            out vec3 interpolatedColor;
+            uniform vec2 repeatUV;
+            uniform vec2 offsetUV;
             out vec3 position;
             out vec2 UV;
             out vec3 normal;
@@ -32,7 +36,8 @@
             {
                 gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(vertexPosition, 1);
                 position = vec3(modelMatrix * vec4(vertexPosition, 1));
-                UV = vertexUV;
+                UV = vertexUV * repeatUV + offsetUV;
+                interpolatedColor = vertexColor;
                 normal = normalize(transpose(inverse(mat3(modelMatrix))) * vertexNormal);
                 
                 if (useShadow)

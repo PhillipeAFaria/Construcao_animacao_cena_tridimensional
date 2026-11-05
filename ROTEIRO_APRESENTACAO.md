@@ -9,7 +9,7 @@ Antes da aula: preencher nomes e contribuições no README; instalar as dependê
 | 2:00–3:00 | Integrante 1 | Pausar com Espaço, mover a câmera com setas e W/S, alternar vistas com 1/2/3 e retomar. Use [ para desacelerar se necessário. Explicar tempo decorrido. |
 | 3:00–4:00 | Integrante 2 | Mostrar composição dos modelos e pivôs de cauda, pernas, rodas e sensor em models.py. |
 | 4:00–5:00 | Integrante 1 | Abrir simulation.py: estados, transições e reaproveitamento do dt. |
-| 5:00–6:00 | Integrante 2 | Mostrar textura do terreno, UV, materiais, luz direcional e normais. |
+| 5:00–6:00 | Integrante 2 | Abrir F1; comparar F3 (cor interpolada), F4 (UV) e F5 (filtros). Voltar às imagens; comparar F6/F7 (foco/cinza), restaurar e explicar luz direcional/normais. Usar o roteiro curto de APLICACAO_DOS_PDFS.md. |
 | 6:00–7:30 | Ambos | Explicar duas passagens do shadow mapping, câmera da luz, comparação de profundidade e filtragem PCF 3×3. Usar F2 para comparar com/sem sombra, mantendo Phong. |
 | 7:30–8:30 | Ambos | Mostrar shader Phong e uniforms M/V/P; distinguir iluminação e sombra projetada. |
 | 8:30–10:00 | Ambos | Apresentar contribuições reais, fontes e uso de IA; responder perguntas individuais. |
@@ -29,3 +29,13 @@ Antes da aula: preencher nomes e contribuições no README; instalar as dependê
 11. **O que acontece ao pausar?** O tempo da simulação para, mas os eventos, câmera e renderização continuam funcionando.
 12. **Há efeitos extras?** Há filtragem PCF 3×3 das sombras e melhorias visuais. A classificação como bônus depende do professor; não há bloom nem bump mapping. O terreno e a placa usam PNG, não textura procedural no shader.
 13. **O que foi feito com IA?** Explicar a declaração do README e demonstrar que o código foi compreendido e revisado pelos integrantes.
+
+## Perguntas adicionais sobre as aulas
+
+- O que muda entre cor uniforme, cor de vértice e textura? Mostrar o uniform baseColor, o VBO vertexColor e o sampler da imagem; são canais distintos.
+- Quem interpola as cores e UV? O rasterizador, entre os dois estágios de shader; o fragment shader recebe os valores interpolados.
+- Por que todos os arrays devem ter o mesmo número de vértices? Os atributos de um mesmo índice descrevem o mesmo vértice. A validação impede streams incompletos.
+- O que é um texel? Uma amostra da imagem de textura, que não precisa corresponder a um único pixel na tela.
+- Por que filtros não mudam a geometria? Eles afetam a consulta de texels. Comparar F4/F5 pausado e depois F8 para inspecionar os mesmos triângulos.
+- O que o sampler recebe? O número da unidade de textura; o identificador da textura é ligado a essa unidade por glBindTexture.
+- Como foi usado o PDF de visão? Para escolhas de separação cromática, foco e legibilidade. A conversão em cinza é ilustrativa e não simula uma condição clínica.
