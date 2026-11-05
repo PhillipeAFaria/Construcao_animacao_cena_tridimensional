@@ -1,0 +1,1 @@
+terreno.png: imagem original gerada por tools/gerar_textura.py com Python/Pillow, ruido deterministico e grade. Sem imagem externa. Apoio: OpenAI Codex. Nao e textura procedural calculada no shader nem efeito de bonus.
