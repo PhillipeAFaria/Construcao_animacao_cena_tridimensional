@@ -21,6 +21,10 @@ class PhongMaterial(LightedMaterial):
         self.add_uniform("vec2", "offsetUV", [0.0, 0.0])
         self.add_uniform("float", "focusFactor", 1.0)
         self.add_uniform("bool", "grayScale", False)
+        self.add_uniform("float", "scannerActive", 0.0)
+        self.add_uniform("vec3", "scannerPosition", [0,0,0])
+        self.add_uniform("vec3", "scannerDirection", [1,0,0])
+        self.add_uniform("vec3", "scannerColor", [.18,.82,1.0])
 
         if texture is None:
             self.add_uniform("bool", "useTexture", False)

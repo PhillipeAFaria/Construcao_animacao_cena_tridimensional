@@ -1,4 +1,4 @@
-# Registro de validação — versão 1.3 — 04/11/2026
+# Registro de validação — versão 1.4 — 04/11/2026
 
 ## Ambiente medido
 
@@ -11,7 +11,7 @@
 
 | Verificação | Resultado |
 |---|---|
-| Lógica sem GPU | 19 testes aprovados |
+| Lógica sem GPU | 22 testes aprovados |
 | Independência de FPS | Poses equivalentes a 30, 60 e 144 FPS em cinco instantes; tolerância de sete casas decimais |
 | Coordenação | Rover espera durante reconhecimento e resposta; acompanhamento liberado após virada |
 | Pausa/retomada e reinício | Estado e pose preservados durante pausa; retomada e reset aprovados |
@@ -36,8 +36,10 @@
 | Colisões no percurso | 3.841 poses amostradas a 1/240 s; sem contatos e folga mínima AABB de 0,432 unidade |
 | FPS e velocidade | Percurso protegido a 15, 30, 60 e 144 FPS, incluindo 2×; todos concluídos |
 | Regressão e bloqueio | Sobreposição antiga da cauda reproduzida; colisão forçada rejeitada sem avanço do tempo |
+| Scanner luminoso | 1.389 pixels afetados pela iluminação de superfície; mais 3.590 pixels alterados pela representação do feixe |
+| Sincronização do scanner | Origem na lente, somente no reconhecimento, pausa preservada e escrita de profundidade restaurada |
 | Robustez do tempo | Rejeição de dt infinito, NaN e negativo |
-| Desempenho da cena 1.3 | 40 quadros com guardião de colisões, sem limitador e sem HUD: 1,401 s / 28,6 FPS |
+| Desempenho histórico da cena 1.3 | 40 quadros com guardião de colisões, sem limitador e sem HUD: 1,401 s / 28,6 FPS |
 
 Arquivos de evidência: `evidencias/validacao_gpu.json`, `evidencias/teste_sombras.json` e capturas PNG. As comparações das aulas estão em `evidencias/validacao_aulas.json`. A imagem de câmera durante pausa vem do teste de GPU e omite intencionalmente o painel 2D.
 
@@ -50,3 +52,5 @@ Foi executada renderização real com contexto OpenGL, não apenas análise est�
 O pacote não inclui intérprete Python, bibliotecas instaladas ou executável autônomo. As dependências são reproduzidas pelo requirements.txt. A primeira instalação requer internet. O uso em outras GPUs, versões de driver ou sistemas operacionais ainda precisa de verificação local.
 
 As colisões são cinemáticas entre os dois personagens, por AABBs conservadoras das peças. A câmera e os elementos estáticos não têm resposta física. Evidência: `evidencias/validacao_colisoes.json`.
+
+O efeito luminoso foi conferido visualmente na captura real `13_reconhecimento_luminoso.png`. Dados: `evidencias/validacao_scanner.json`. O benchmark histórico não mede o custo adicional do efeito ativo.

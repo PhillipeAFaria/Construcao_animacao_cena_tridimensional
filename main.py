@@ -19,12 +19,13 @@ from simulation import Simulation
 from appearance import Appearance
 from geometry_tools import apply_gradient
 from collision import CollisionWorld
+from scanner import Scanner
 
 ROOT=Path(__file__).resolve().parent
 LABELS=('01 / APROXIMACAO', '02 / RECONHECIMENTO', '03 / RESPOSTA',
         '04 / ACOMPANHAMENTO', '05 / MISSAO CONCLUIDA')
 DESCRIPTIONS=('Rover avanca ate a distancia de reconhecimento.',
- 'Sensor inspeciona o dinossauro; rover aguarda.',
+ 'Luz do sensor varre o dinossauro; rover aguarda.',
  'Dinossauro responde a chegada e muda de direcao.',
  'Virada concluida: rover acompanha a distancia constante.',
  'Encontro finalizado. Pressione R para repetir.')
@@ -39,7 +40,7 @@ class Application:
         pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE,24)
         self.size=(1200,760)
         pygame.display.set_mode(self.size,pygame.OPENGL|pygame.DOUBLEBUF)
-        pygame.display.set_caption('ORBITA / Parque Jurassico 1.3 | Colisoes ativas | Espaco: pausa')
+        pygame.display.set_caption('ORBITA / Parque Jurassico 1.4 | Sensor luminoso | Espaco: pausa')
         self.renderer=Renderer([.11,.18,.22])
         self.scene=Scene()
         self.camera=Camera(angle_of_view=48, aspect_ratio=self.size[0]/self.size[1],far=100)
@@ -57,6 +58,7 @@ class Application:
         self.renderer.shadow_object._bias=.0018
         self.environment()
         self.appearance=Appearance(self.scene,[self.rover,self.dino]+[mesh for mesh,_ in self.scan_ring])
+        self.scanner=Scanner(self.sensor,self.scene,self.collisions.dinosaur)
         self.azimuth=-.65; self.elevation=.46; self.radius=17
         self.target=[-.6,1,0]
         self.camera_mode='LIVRE'
@@ -218,7 +220,9 @@ class Application:
             self.sim.update(dt*self.speed,self.can_advance)
             self.controls(real_dt)
             self.apply_pose()
+            self.scanner.update(self.sim,self.appearance.gray)
             self.renderer.render(self.scene,self.camera)
+            self.scanner.render(self.camera)
             self.hud.draw(self.sim,self.show_help,self.speed,self.camera_mode,self.loop,self.shadows,self.appearance)
             if self.pending_capture:
                 self.capture(out/'captura.png'); self.pending_capture=False
@@ -229,7 +233,7 @@ class Application:
             pygame.display.flip()
             frame+=1
             if self.args.validate and frame>=1000:
-                report={'versao':'1.3','frames':frame,'estado_final':self.sim.name,
+                report={'versao':'1.4','frames':frame,'estado_final':self.sim.name,
                     'colisoes_evitadas':self.sim.prevented_collisions,
                     'verificacoes_colisao':self.collisions.checks,
                     'opengl':GL.glGetString(GL.GL_VERSION).decode(),

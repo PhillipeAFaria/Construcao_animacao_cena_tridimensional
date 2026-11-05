@@ -113,3 +113,11 @@ No modo de foco, o shader aproxima a cor do ambiente de sua intensidade RGB pond
 A distância anterior permitia que a cauda atravessasse o rover durante a rotação. A nova coreografia mantém 3,8 unidades longitudinais e o sensor acompanha a nova posição. O controle usa caixas compostas obtidas das geometrias reais e transformadas pelas matrizes de cada parte. O detector considera as três dimensões e margem de 0,10 unidade; não confunde uma peça alta com contato no chão.
 
 O callback `Application.can_advance` é usado no loop normal. `Simulation.update` verifica subpassos de até 1/120 s, rejeita poses inseguras e restaura atomicamente tempo, estado, rodas e articulações. As caixas conservadoras não fazem uma simulação de forças. Consulte `COLISOES.md` para detalhes, limites e testes de regressão da cauda.
+
+## Luz de reconhecimento da versão 1.4
+
+`Scanner` calcula a origem na lente a partir da matriz global do sensor e usa seu eixo +X para orientar cone, núcleo e contribuição focal do material Phong. O efeito é ligado somente no estado RECONHECIMENTO. A intensidade usa uma curva senoidal suave e o tempo da simulação, preservando a pausa.
+
+Além dos uniforms existentes, o Phong usa `scannerActive` (intensidade), `scannerPosition` e `scannerDirection` (origem/direção em mundo) e `scannerColor`. O termo adicional depende da normal, distância e abertura angular, e é aplicado antes dos modos de foco/cinza. A luz direcional mantém seu shadow mapping; não há nova passagem de sombra focal.
+
+O volume luminoso usa os shaders `scanner.vert` e `scanner.frag`, com atributos de posição/UV, matrizes M/V/P e uniforms de cor, intensidade, tempo e modo do efeito. Mistura aditiva com teste de profundidade mantém a luz visível sem substituir as superfícies. A escrita de profundidade é restaurada após a passagem. Detalhes e limites estão em `SCANNER.md`.

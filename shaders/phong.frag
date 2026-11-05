@@ -61,6 +61,10 @@
             uniform bool useVertexColors;
             uniform float focusFactor;
             uniform bool grayScale;
+            uniform float scannerActive;
+            uniform vec3 scannerPosition;
+            uniform vec3 scannerDirection;
+            uniform vec3 scannerColor;
             in vec3 interpolatedColor;
             uniform bool useTexture;
             uniform sampler2D textureSampler;
@@ -101,6 +105,7 @@
                     color *= texture(textureSampler, UV );
                 }
                 vec3 calcNormal = normal;
+                vec3 surfaceColor=color.rgb;
                 if (useBumpTexture) 
                 {
                     calcNormal += bumpStrength * vec3(texture(bumpTextureSampler, UV));
@@ -136,6 +141,16 @@
                     }
                 }  
                 
+                // Recognition light: smooth spotlight from the rover sensor.
+                if (scannerActive>0.0) {
+                    vec3 ray=position-scannerPosition;
+                    float distanceToSensor=length(ray);
+                    float angle=dot(normalize(ray),normalize(scannerDirection));
+                    float cone=smoothstep(cos(0.20),cos(0.11),angle);
+                    float falloff=max(0.0,1.0-distanceToSensor/6.0);
+                    float diffuse=max(dot(normalize(calcNormal),-normalize(ray)),0.0);
+                    color.rgb+=surfaceColor*scannerColor*scannerActive*cone*falloff*(0.3+1.8*diffuse);
+                }
                 // Perceptual comparison, not a clinical model of human vision.
                 float luminance = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
                 color.rgb = mix(vec3(luminance), color.rgb, focusFactor);

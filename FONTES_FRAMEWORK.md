@@ -43,3 +43,7 @@ Foram mantidos apenas os módulos Python transitivamente utilizados e os inicial
 ## Adaptações da versão 1.3
 
 A pedido do usuário, a partir de uma captura de interpenetração, foram criados `collision.py`, testes de colisão e a integração do callback na simulação e na interface. A lógica foi elaborada com apoio do Codex e não é atribuída ao framework original. Usa posições das geometrias e matrizes de hierarquia já presentes no framework. Não foram acrescentadas dependências.
+
+## Adaptações da versão 1.4
+
+`scanner.py`, shaders `scanner.*`, testes e contribuição focal nos shaders Phong foram elaborados para o reconhecimento luminoso, com apoio do Codex. O efeito reutiliza geometria, materiais, matrizes, cena e renderizador do framework; não é atribuído aos exemplos originais. Não acrescenta bibliotecas.

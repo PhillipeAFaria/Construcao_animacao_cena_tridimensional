@@ -1,4 +1,4 @@
-# Órbita — Parque Jurássico 1.3
+# Órbita — Parque Jurássico 1.4
 
 Rover explorador + dinossauro de blocos. Versão com colisões entre os personagens e folga para a cauda, preservando as melhorias baseadas nos três PDFs das aulas; as versões anteriores permanecem separadas. Consulte `APLICACAO_DOS_PDFS.md` para a relação entre páginas, conceitos e código.
 
@@ -21,7 +21,7 @@ Os temas foram definidos pelo solicitante; o programa não comprova a realizaç�
 Um rover entra em uma pista de testes de um parque de demonstração e reconhece um dinossauro de blocos. Não existe terceiro personagem. O ambiente é um diorama com terreno texturizado, pista, árvores de blocos, cerca, placa texturizada, rochas e marcos de destino.
 
 1. **0–5 s — aproximação:** o rover percorre 3,2 unidades; rodas giram proporcionalmente ao percurso. O dinossauro movimenta a cauda enquanto aguarda.
-2. **5–7 s — reconhecimento:** atingida a distância longitudinal de 3,8 unidades, o rover para e gira seu sensor. Um anel de reconhecimento animado identifica o alvo e o dinossauro vira a cabeça em resposta.
+2. **5–7 s — reconhecimento:** atingida a distância longitudinal de 3,8 unidades, o rover para, gira seu sensor e emite um feixe azul-ciano que ilumina o dinossauro. Um anel de reconhecimento animado identifica o alvo e o dinossauro vira a cabeça em resposta.
 3. **7–9 s — resposta:** concluída a varredura, o dinossauro gira 90 graus e movimenta a mandíbula. O rover continua parado.
 4. **9–16 s — acompanhamento:** somente depois da virada ambos percorrem 4,55 unidades, em faixas laterais distintas, com aceleração e desaceleração suaves (velocidade média de 0,65 unidade/s; não constante). O rover mantém 3,8 unidades de separação longitudinal; o dinossauro alterna as pernas e oscila a cauda.
 5. **Após 16 s — conclusão:** a cena permanece visível. Pressione R para repetir; L habilita repetição automática opcional.
@@ -90,6 +90,7 @@ Se a janela falhar antes de aparecer, confira a versão do Python e atualize o d
 | Shadow mapping em duas passagens | `py3d/core_ext/renderer.py`: `Renderer.render`; `py3d/light/shadow.py`; `shaders/depth.vert`, `shaders/depth.frag` |
 | Textura de profundidade e framebuffer | `py3d/core_ext/render_target.py`: `RenderTarget` |
 | Painel de estado e linha do tempo em textura 2D | `main.py`: `HUD`; `py3d/material/texture.py` |
+| Feixe e luz de reconhecimento | `scanner.py`; `shaders/scanner.*`; contribuição focal em `shaders/phong.frag`; `SCANNER.md` |
 | Colisões e folga para a cauda | `collision.py`; `simulation.py`: `Simulation.update`; `main.py`: `Application.can_advance`; `COLISOES.md` |
 | Cores por vértice e gradientes | `geometry_tools.py`; `shaders/phong.vert`, `shaders/phong.frag` |
 | Laboratório de UV, filtros e contraste | `appearance.py`; `main.py`: `Application.handle_event`, `HUD.draw` |
@@ -134,7 +135,7 @@ Resultados medidos e limites estão em `VALIDACAO.md`. Os arquivos JSON e imagen
 
 ## Declaração de uso de inteligência artificial
 
-Foi utilizada a ferramenta **OpenAI Codex** para planejar a cena; escrever `collision.py`, `main.py`, `models.py`, `simulation.py`, `appearance.py`, `geometry_tools.py`, scripts de instalação, testes e documentação; gerar as texturas PNG por scripts; adaptar componentes e shaders de `py3d/`; executar validações e analisar capturas. O framework de terceiros foi atribuído separadamente e não é declarado como autoria da dupla ou da IA. Os integrantes devem revisar o código, testar na máquina da apresentação, registrar suas contribuições reais e compreender os trechos antes da entrega. Não afirmar que os testes automáticos substituem sua revisão individual.
+Foi utilizada a ferramenta **OpenAI Codex** para planejar a cena; escrever `scanner.py`, `collision.py`, `main.py`, `models.py`, `simulation.py`, `appearance.py`, `geometry_tools.py`, scripts de instalação, testes e documentação; gerar as texturas PNG por scripts; adaptar componentes e shaders de `py3d/`; executar validações e analisar capturas. O framework de terceiros foi atribuído separadamente e não é declarado como autoria da dupla ou da IA. Os integrantes devem revisar o código, testar na máquina da apresentação, registrar suas contribuições reais e compreender os trechos antes da entrega. Não afirmar que os testes automáticos substituem sua revisão individual.
 
 ## Base preservada da versão 1.1
 
@@ -174,3 +175,9 @@ As novas comparações são opcionais e vêm desativadas; o laboratório é aber
 - `tests/check_performance.py` agora inclui o guardião de colisões; benchmark curto nesta máquina: 28,6 FPS sem HUD/limitador. As medições de versões anteriores acima são históricas e não representam o custo desta versão.
 
 Use o novo ZIP em uma pasta separada e prepare o ambiente dessa pasta. O detector protege o rover e o dinossauro; não acrescenta física à câmera ou aos objetos estáticos. Consulte `COLISOES.md` e `evidencias/validacao_colisoes.json`.
+
+## Reconhecimento luminoso da versão 1.4
+
+O sensor agora emite automaticamente um feixe azul-ciano durante o reconhecimento, com halo na lente e iluminação focal na superfície do alvo. A origem e a direção seguem a matriz do sensor. O feixe respeita a profundidade da cena e seu raio central termina na primeira caixa do alvo encontrada, ou no alcance máximo. A pausa congela a varredura e o movimento da luz; a câmera permanece livre.
+
+As colisões da versão 1.3 permanecem ativas. A luz fica em uma passagem separada e não vira um obstáculo físico. Nenhuma dependência ou controle novo foi acrescentado. Veja `SCANNER.md` para shaders, uniforms, limitações e testes. A geração do efeito e as alterações foram desenvolvidas com apoio do OpenAI Codex, como declarado acima.
