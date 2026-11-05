@@ -1,9 +1,0 @@
-{
-  "pixels_illuminated": 1389,
-  "pixels_changed_by_beam": 3590,
-  "origin_tracks_sensor": true,
-  "pause_preserves_scan": true,
-  "only_recognition_stage": true,
-  "depth_write_restored": true,
-  "gl_error": 0
-}

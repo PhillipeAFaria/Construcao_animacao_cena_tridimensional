@@ -1,40 +1,37 @@
-# Órbita — Parque Jurássico 1.5
+# Órbita — Parque Jurássico
 
-Rover explorador + dinossauro de blocos. Versão com colisões entre os personagens e folga para a cauda, preservando as melhorias baseadas nos três PDFs das aulas; as versões anteriores permanecem separadas. Consulte `APLICACAO_DOS_PDFS.md` para a relação entre páginas, conceitos e código.
+Trabalho de Computação Gráfica: construção e animação de uma cena tridimensional em Python, Pygame e OpenGL, com componentes de uma implementação do framework de Lee Stemkoski e Michael Pascale.
 
-Aplicação 3D acadêmica em Python, Pygame e OpenGL, usando componentes de uma implementação pública do framework de Stemkoski e Pascale. Os modelos e a coreografia desta cena foram construídos especificamente para esta atividade, com apoio de IA declarado abaixo.
+## Integrantes e temas
 
-## Identificação a completar antes da entrega
+| **Phillipe Almeida Faria** | **Dinossauro de blocos** |
+| **Thiago Ferreira de Souza Junior** | **Rover explorador** |
 
-| Campo | Preenchimento |
-|---|---|
-| Integrante 1 / matrícula | PREENCHER |
-| Tema do integrante 1 | Rover explorador (18) |
-| Integrante 2 / matrícula | PREENCHER |
-| Tema do integrante 2 | Dinossauro de blocos (28) |
-| Disciplina / professor / turma | PREENCHER |
+## Cena e ação conjunta
 
-Os temas foram definidos pelo solicitante; o programa não comprova a realização do sorteio previsto no enunciado.
+Um rover explora uma pista de um parque de demonstração. Ao se aproximar do dinossauro, para a uma distância longitudinal de 3,8 unidades, gira o sensor e emite uma luz azul-ciano para reconhecê-lo. O dinossauro reage com a cabeça, gira o corpo e inicia uma caminhada. O rover aguarda a conclusão da virada para acompanhá-lo. O cenário inclui estação de pesquisa, vegetação geométrica, calçada, bancos, portal e lago ornamental.
 
-## Cena e interação
+| Tempo de simulação | Etapa | Ação coordenada |
 
-Um rover entra em uma pista de testes de um parque de demonstração e reconhece um dinossauro de blocos. Não existe terceiro personagem. O ambiente é um diorama com terreno texturizado, pista, árvores de blocos, cerca, placa texturizada, rochas e marcos de destino.
+| 0–5 s | Aproximação | O rover avança 3,2 unidades com rodas girando; o dinossauro movimenta a cauda. |
+| 5–7 s | Reconhecimento | O rover para, gira o sensor e ilumina o dinossauro, que responde movimentando a cabeça. |
+| 7–9 s | Resposta | O dinossauro gira 90° e movimenta a mandíbula; o rover aguarda. |
+| 9–16 s | Acompanhamento | Ambos avançam 4,55 unidades com aceleração/desaceleração suaves; o rover mantém a distância de segurança. |
+| Após 16 s | Conclusão | A visualização continua; R reinicia a sequência. |
 
-1. **0–5 s — aproximação:** o rover percorre 3,2 unidades; rodas giram proporcionalmente ao percurso. O dinossauro movimenta a cauda enquanto aguarda.
-2. **5–7 s — reconhecimento:** atingida a distância longitudinal de 3,8 unidades, o rover para, gira seu sensor e emite um feixe azul-ciano que ilumina o dinossauro. Um anel de reconhecimento animado identifica o alvo e o dinossauro vira a cabeça em resposta.
-3. **7–9 s — resposta:** concluída a varredura, o dinossauro gira 90 graus e movimenta a mandíbula. O rover continua parado.
-4. **9–16 s — acompanhamento:** somente depois da virada ambos percorrem 4,55 unidades, em faixas laterais distintas, com aceleração e desaceleração suaves (velocidade média de 0,65 unidade/s; não constante). O rover mantém 3,8 unidades de separação longitudinal; o dinossauro alterna as pernas e oscila a cauda.
-5. **Após 16 s — conclusão:** a cena permanece visível. Pressione R para repetir; L habilita repetição automática opcional.
-
-As condições de conclusão de cada estado liberam o próximo. O movimento usa segundos decorridos, não incrementos fixos por quadro. Há detecção cinemática de colisões entre as peças do rover e do dinossauro, com bloqueio preventivo de movimentos. Não há motor de física, IA de personagens ou busca de caminhos. Leia `COLISOES.md` para a implementação e os limites.
+A interação depende da conclusão de cada etapa: o rover não parte antes de o dinossauro terminar a virada. O movimento é calculado pelo tempo decorrido e não por incrementos fixos por quadro. Colisores compostos pelas peças dos modelos impedem a aceitação de movimentos inseguros, incluindo contatos entre cauda e sensor.
 
 ## Instalação e execução
 
-Requisitos: Windows com driver gráfico que suporte **OpenGL 3.3**, Python **3.10 a 3.13** de 64 bits (recomendado: 3.12). A instalação inicial das dependências requer acesso à internet. Não é necessário instalar PyOpenGL_accelerate.
+Ambiente recomendado e verificado: **Windows, Python 3.12 de 64 bits e GPU/driver com OpenGL 3.3**. O instalador aceita Python 3.10–3.13 x64. A primeira instalação requer internet para obter as três bibliotecas de `requirements.txt`; depois a aplicação executa localmente.
 
-**No Windows:** extraia o ZIP inteiro. Dê dois cliques em `PREPARAR_AMBIENTE.bat` e aguarde a mensagem de sucesso; depois abra `INICIAR.bat`. O instalador procura Python utilizável, cria `.venv` dentro desta pasta e instala `requirements.txt`. A aplicação funciona sem internet depois disso.
+1. Extraia a pasta completa do ZIP.
+2. Execute **PREPARAR_AMBIENTE.bat** e aguarde a confirmação de sucesso.
+3. Execute **INICIAR.bat**.
 
-**Instalação manual**, em um terminal aberto nesta pasta:
+O ambiente `.venv` é criado automaticamente na pasta do projeto, não acompanha a entrega. Se não houver um Python compatível, instale Python 3.12 x64 com o launcher `py` e repita a preparação.
+
+Instalação manual em um terminal aberto nesta pasta:
 
 ```powershell
 py -3.12 -m venv .venv
@@ -42,149 +39,128 @@ py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe main.py
 ```
 
-Em Linux/macOS: `python3 -m venv .venv`, `.venv/bin/python -m pip install -r requirements.txt`, `.venv/bin/python main.py`. Essas plataformas não foram verificadas nesta entrega.
-
-Se a janela falhar antes de aparecer, confira a versão do Python e atualize o driver da GPU pelo fabricante. Não use o driver genérico do Windows. Execute pelo terminal para ler a mensagem de erro. Rodar com `SDL_VIDEODRIVER=dummy` não permite validar OpenGL.
+Em caso de falha na abertura da janela, execute pelo terminal para visualizar o erro e confira o suporte a OpenGL do driver gráfico. Não é necessário instalar PyOpenGL_accelerate. Outras plataformas não foram verificadas nesta entrega.
 
 ## Controles
 
-| Tecla | Ação |
-|---|---|
-| Espaço | Pausar/retomar a animação; a câmera continua disponível |
-| Setas | Orbitar a câmera horizontal e verticalmente |
-| W / S | Aproximar / afastar |
+| Tecla | Função |
+
+| Espaço | Pausar/retomar a animação, mantendo a câmera disponível |
+| Setas | Orbitar a câmera |
+| W / S ou roda do mouse | Aproximar/afastar |
 | A / D | Deslocar o alvo da câmera no eixo X |
-| Q / E | Baixar / elevar o alvo |
+| Q / E | Baixar/elevar o alvo da câmera |
+| 1 / 2 / 3 | Vistas geral, próxima e superior com acompanhamento |
+| C | Alternar câmera livre e acompanhamento |
 | Home | Restaurar a câmera |
 | R | Reiniciar a sequência e remover a pausa |
+| [ / ] | Reduzir/aumentar velocidade: 0,25× a 2× |
+| L | Alternar repetição automática |
 | H | Mostrar/ocultar ajuda |
-| F12 | Salvar `evidencias/captura.png` |
-| Esc | Fechar |
-| 1 / 2 / 3 | Câmeras geral, próxima e superior, acompanhando a dupla |
-| C | Alternar acompanhamento automático e câmera livre |
-| [ / ] | Diminuir / aumentar velocidade: 0,25×, 0,5×, 1× ou 2× |
-| L | Alternar repetição automática (desligada por padrão) |
-| F2 | Comparar cena com/sem sombra projetada; iluminação permanece ativa |
-| Roda do mouse | Aproximar / afastar a câmera |
-| F1 | Abrir/fechar laboratório visual; não redefine os modos |
-| F3 | Alternar contribuição das cores por vértice |
-| F4 | Alternar imagens originais e grade UV nas superfícies texturizadas |
-| F5 | Percorrer NEAREST → LINEAR → MIPMAP; padrão MIPMAP |
-| F6 | Destacar personagens reduzindo saturação/brilho do ambiente |
-| F7 | Comparar materiais da cena em cinza; HUD e fundo permanecem independentes |
-| F8 | Alternar preenchimento e malha de triângulos |
+| F1 | Abrir/fechar laboratório visual |
+| F2 | Comparar com/sem sombra projetada, preservando a iluminação |
+| F3 | Alternar a contribuição das cores por vértice |
+| F4 | Alternar texturas originais e grade UV |
+| F5 | Alternar filtros NEAREST, LINEAR e mipmaps |
+| F6 | Destacar os personagens reduzindo brilho/saturação do ambiente |
+| F7 | Comparar os materiais da cena em cinza |
+| F8 | Alternar superfícies preenchidas e malha triangulada |
+| F12 | Salvar uma captura em `evidencias/captura.png` |
+| Esc | Encerrar |
 
-## Onde está cada requisito
+O scanner liga automaticamente durante o reconhecimento. A pausa congela também sua varredura. Reiniciar com R preserva as preferências de câmera e aparência. Os modos de laboratório são opcionais e não modificam a coreografia.
 
-| Recurso | Arquivos / classes / funções |
-|---|---|
-| Rover com rodas e sensor | `models.py`: `Models.rover` |
-| Dinossauro de blocos articulado | `models.py`: `Models.dinosaur` |
-| Ambiente e textura PNG com UV repetidas | `main.py`: `Application.environment`; `assets/terreno.png`; `repeatUV` no shader |
-| Estados e animação por tempo | `simulation.py`: `Simulation.update`, `Simulation.pose` |
-| Hierarquia, translação, rotação e escala | `models.py`: `transform`, `Models.pivot`; `py3d/core_ext/object3d.py` |
-| Câmera perspectiva e controle de teclado | `main.py`: `Application.controls`; `py3d/core_ext/camera.py` |
-| Pausa e retomada | `main.py`: `Application.run`; `simulation.py`: `Simulation.paused` |
-| Luz direcional e ambiente | `main.py`: `Application.__init__`; `py3d/light/` |
-| Phong, normais e textura | `py3d/material/phong.py`; `shaders/phong.vert`, `shaders/phong.frag` |
-| Shadow mapping em duas passagens | `py3d/core_ext/renderer.py`: `Renderer.render`; `py3d/light/shadow.py`; `shaders/depth.vert`, `shaders/depth.frag` |
-| Textura de profundidade e framebuffer | `py3d/core_ext/render_target.py`: `RenderTarget` |
-| Painel de estado e linha do tempo em textura 2D | `main.py`: `HUD`; `py3d/material/texture.py` |
-| Cenário detalhado e céu | `scenery.py`, `sky.py`, `shaders/sky.*`; `CENARIO.md` |
-| Feixe e luz de reconhecimento | `scanner.py`; `shaders/scanner.*`; contribuição focal em `shaders/phong.frag`; `SCANNER.md` |
-| Colisões e folga para a cauda | `collision.py`; `simulation.py`: `Simulation.update`; `main.py`: `Application.can_advance`; `COLISOES.md` |
-| Cores por vértice e gradientes | `geometry_tools.py`; `shaders/phong.vert`, `shaders/phong.frag` |
-| Laboratório de UV, filtros e contraste | `appearance.py`; `main.py`: `Application.handle_event`, `HUD.draw` |
-| Envio de atributos e uniforms | `py3d/core/attribute.py`, `py3d/core/uniform.py` |
+## Organização dos arquivos e recursos gráficos
 
-Os shaders externos são carregados em tempo de execução. O compilador do framework acrescenta `#version 330`. Os shaders do painel são entregues em `shaders/hud.vert` e `shaders/hud.frag` e carregados por `TextureMaterial`.
+| Arquivo ou pasta | Recursos principais |
 
-Leia `EXPLICACAO_TECNICA.md` para atributos/uniforms, diferenças entre iluminação e sombra projetada, adaptações do framework e relações com os seis capítulos. `ROTEIRO_APRESENTACAO.md` organiza a demonstração de dez minutos.
+| `main.py` | `Application`: janela, integração da cena, câmera, eventos e loop; `HUD`: painel e linha do tempo |
+| `models.py` | `Models.rover`, `Models.dinosaur`: composição por caixas/cilindros; `transform`: translação, rotação e escala |
+| `simulation.py` | `Simulation`: estados da interação, tempo, pausa, poses e rejeição de subpassos inseguros |
+| `collision.py` | `CompoundCollider`, `CollisionWorld`: caixas das peças transformadas pela hierarquia |
+| `scanner.py` | `Scanner`: origem na lente, orientação do feixe, halo e iluminação focal |
+| `scenery.py` | `decorate`: parque; `batch_static`: agrupamento do ambiente estático por material |
+| `sky.py` | Fundo de céu em uma passagem separada |
+| `geometry_tools.py` | Gradientes de cor por vértice |
+| `appearance.py` | Comparações de UV, filtros, cores, foco, cinza e malha |
+| `py3d/` | Apenas componentes do framework utilizados: matrizes, atributos, uniforms, cena, câmera, malhas, geometrias, materiais, luzes e renderizador |
+| `shaders/` | Fontes GLSL carregadas em tempo de execução |
+| `assets/` | Sete imagens PNG necessárias à execução |
+| `requirements.txt` | Dependências Python com versões fixadas |
+| Arquivos BAT e `preparar.ps1` | Preparação e inicialização no Windows |
 
-## Verificação
+### Transformações e hierarquia
 
-Execute nesta pasta, após a instalação:
+As matrizes locais são compostas como `T × Ry × Rx × Rz × S`, com vetores coluna. A matriz global é `M_pai × M_local`. Rodas e sensor herdam a transformação do rover; pernas, cabeça, mandíbula e cauda herdam a transformação do dinossauro, com pivôs próprios. O ambiente estático é agrupado após transformar posições e normais; as partes animadas permanecem independentes.
 
-```powershell
-.\.venv\Scripts\python.exe -m unittest discover -s tests -v
-.\.venv\Scripts\python.exe tests/check_gpu.py
-.\.venv\Scripts\python.exe main.py --validate
-```
+### Shaders, atributos e uniforms
 
-O primeiro comando verifica a lógica sem abrir janela. O segundo abre OpenGL para verificar mapa de sombras dinâmico, influência visível das sombras e câmera durante a pausa. O terceiro executa 1.000 quadros com passo de simulação de 1/60 s, salva cinco imagens e `evidencias/validacao_gpu.json`, e fecha. O passo fixo existe somente nesse modo de validação; a execução normal usa o relógio real.
+| Shaders | Uso |
 
-Para validar as melhorias baseadas nos PDFs, execute também `.\.venv\Scripts\python.exe tests/check_lessons.py`. O teste verifica interpolação RGB na GPU, origem/repetição/deslocamento UV, diferenças entre filtros, foco, cinza, malha e preservação da animação e do filtro de sombras.
+| `phong.vert` / `phong.frag` | Transformações, cores por vértice, UV, textura, materiais iluminados, sombra e luz do scanner |
+| `depth.vert` / `depth.frag` | Primeira passagem do shadow mapping, gravando profundidade como cor float |
+| `scanner.vert` / `scanner.frag` | Cone translúcido, núcleo e halo luminoso |
+| `sky.vert` / `sky.frag` | Gradiente e formas suaves do céu |
+| `hud.vert` / `hud.frag` | Textura transparente do painel 2D |
 
-Resultados medidos e limites estão em `VALIDACAO.md`. Os arquivos JSON e imagens acompanham a entrega. As evidências registram esta máquina, não garantem compatibilidade com todos os computadores. A versão 1.1 acrescenta filtragem PCF 3×3 às sombras e bias dependente da inclinação, preservando o shadow mapping em duas passagens. Não solicita automaticamente pontuação de bônus; esse enquadramento depende do professor. Terreno, pista, painel solar, escamas e placa são imagens PNG carregadas de arquivo.
+O compilador do framework acrescenta `#version 330`. `vertexPosition` fornece posição local; `vertexNormal`, a normal da superfície; `vertexUV`, a coordenada de textura; e `vertexColor`, a cor que será interpolada pelo rasterizador. A classe `Attribute` envia os dados aos VBOs e `Mesh` associa os atributos ao VAO. A quantidade de elementos dos atributos é validada antes da criação da malha.
 
-## Contribuições individuais
+Os uniforms `modelMatrix`, `viewMatrix` e `projectionMatrix` realizam `P × V × M × posição`. A câmera principal usa perspectiva; a câmera da luz usa projeção ortográfica. As normais são transformadas pela inversa transposta da matriz de modelo para suportar escala não uniforme.
 
-**Preencher com o que cada integrante realmente revisou e realizou.** A divisão abaixo é uma sugestão para organizar o estudo, não uma declaração de trabalho já executado por vocês.
+`baseColor`, `useVertexColors`, `useTexture`, `textureSampler`, `repeatUV` e `offsetUV` controlam a aparência. As imagens são consultadas com `UV = vertexUV × repeatUV + offsetUV`; o terreno usa repetição [9,7] e a pista [9,2.3]. A textura de cor ocupa a unidade 1. `light0`/`light1`, `viewPosition`, `specularStrength` e `shininess` controlam luz ambiente/direcional e brilho Phong.
 
-- Integrante 1: revisar rover, rodas, sensor, câmera e controle por tempo; registrar as alterações efetivamente feitas.
-- Integrante 2: revisar dinossauro, hierarquia, ambiente, textura e iluminação; registrar as alterações efetivamente feitas.
-- Ambos: revisar a interação integrada, shadow mapping, shaders, testes e documentação. Cada integrante deve explicar também a aplicação completa.
+`shadow0` fornece matrizes da câmera da luz, mapa de profundidade na unidade 3, direção, intensidade e bias. `scannerActive`, `scannerPosition`, `scannerDirection` e `scannerColor` acrescentam iluminação focal no reconhecimento. O feixe usa ainda `intensity`, `effectTime`, `glowColor` e `beamMode`. `focusFactor` e `grayScale` permitem as comparações visuais. O suporte herdado a bump mapping está desativado.
+
+### Iluminação e sombra projetada
+
+O **sombreamento de uma superfície** é a resposta local do material à luz, calculada pelas normais e pelos termos ambiente, difuso e especular. A **sombra projetada** depende de uma geometria bloquear a luz antes que ela alcance outra superfície.
+
+O shadow mapping segue a abordagem indicada na seção 6.9 do livro: primeiro a cena é renderizada pela câmera da luz, com profundidade gravada em uma textura RGBA32F e teste de profundidade em renderbuffer; depois a câmera principal compara a profundidade de cada fragmento com a armazenada. O mapa tem 2048×2048, é atualizado em cada quadro e utiliza PCF 3×3 e bias para reduzir artefatos. Portanto, a sombra acompanha o movimento dos modelos.
+
+A ordem de desenho é: céu, cena com shadow mapping, feixe translúcido e painel. O feixe usa mistura aditiva com teste de profundidade e sem escrever no buffer de profundidade; o estado é restaurado em seguida. Ele não faz parte dos colisores e não projeta uma segunda sombra focal. Não há bloom ou simulação física da luz no ar.
+
+### Colisões e limites
+
+A proteção compara AABBs compostas pelas peças do rover e do dinossauro, incluindo a cauda e o sensor. Usa margem de 0,10 unidade e subpassos de no máximo 1/120 s. Se um avanço é inseguro, tempo, estado, rodas e articulações retornam juntos à última pose aceita. A câmera e a visualização continuam disponíveis.
+
+Não é um motor de física: não há forças ou quique, nem resposta física com a câmera e os objetos estáticos. As caixas são conservadoras. O lago é uma superfície estática com brilho; o céu é estilizado. Os modos de cinza/foco são comparações gráficas, não modelos fisiológicos de visão.
+
+**Phillipe Almeida Faria — Dinossauro de blocos**
+
+- Modelagem do corpo, pernas, cabeça, mandíbula e cauda por composição de formas geométricas.
+- Organização das articulações e das relações hierárquicas do dinossauro.
+- Animação da caminhada, oscilação da cauda e reação ao reconhecimento do rover.
+- Revisão das cores, textura de escamas, normais e materiais do personagem.
+- Conferência da folga da cauda durante a virada e da resposta dos colisores.
+
+**Thiago Ferreira de Souza Junior — Rover explorador**
+
+- Modelagem do chassi, rodas, painel solar, antena e sensor.
+- Animação das rodas e da varredura do sensor em função do tempo.
+- Integração do feixe luminoso e da iluminação focal de reconhecimento.
+- Revisão dos controles de câmera, pausa, velocidade e reinício.
+- Conferência da aproximação, parada e acompanhamento com distância de segurança.
+
+**Responsabilidades propostas para ambos**
+
+- Integração dos dois modelos e da sequência coordenada no cenário.
+- Revisão da iluminação direcional, texturas, shaders e shadow mapping.
+- Conferência da execução, das colisões e da documentação, com estudo do código integrado para a apresentação.
 
 ## Fontes e atribuição
 
-- Enunciado fornecido: `Trabalho - Computacao Grafica.pdf`, especialmente temas 18 e 28 e requisitos de desenvolvimento.
-- STEMKOSKI, Lee; PASCALE, Michael. *Developing Graphics Frameworks with Python and OpenGL*. CRC Press. DOI: https://doi.org/10.1201/9781003181378. Referência principal, em especial shadow mapping, seção 6.9 indicada no enunciado.
-- Implementação pública de apoio: https://github.com/ax-va/PyOpenGL-Pygame-Stemkoski-Pascale-2021 — componentes em `py3d/`, baseada no livro. Foram consultados `examples/6-5--shadows.py`, classes de cena, geometria, materiais, renderização e sombras. O nome desse exemplo no repositório não altera a referência à seção 6.9 do enunciado. Consulte `FONTES_FRAMEWORK.md` para snapshot e adaptações.
-- Pygame: https://www.pygame.org/docs/ ; PyOpenGL: https://pyopengl.sourceforge.net/documentation/ ; NumPy: https://numpy.org/doc/ .
-- Materiais das aulas: `Computação Gráfica - Desenhando Formas com preenchimento.pdf` (27 páginas), `2026 - Computação Gráfica - Trabalhando Texturas.pdf` (28 páginas) e `Visâo - Computação Gráfica.pdf` (20 páginas). Consulte `APLICACAO_DOS_PDFS.md` e `FONTES_PDFS.json` para conteúdo efetivamente utilizado e identificação das fontes.
-- `assets/*.png`: imagens originais, sem copiar figuras dos PDFs. Geração de terreno/asfalto/solar/escamas/grade em `tools/gerar_materiais.py`; placa em `tools/gerar_placa.py`. A placa rasteriza uma fonte do sistema sem distribuir o arquivo da fonte.
+- STEMKOSKI, Lee; PASCALE, Michael. *Developing Graphics Frameworks with Python and OpenGL*. CRC Press. DOI: https://doi.org/10.1201/9781003181378. Referência de framework, transformações, texturas, iluminação e shadow mapping.
+- Implementação pública de apoio: https://github.com/ax-va/PyOpenGL-Pygame-Stemkoski-Pascale-2021. Foram adaptados componentes de `py3d/` e o exemplo `examples/6-5--shadows.py`. O nome do exemplo no repositório não substitui a referência à seção 6.9 do enunciado.
+- Snapshot da branch `main` consultado em 04/11/2026. SHA-256 do ZIP-fonte: `485be3a402fbde37b045421177a1eba822ea6dbf48e7da9e008a4b7fa0a50d20`. Não foi registrada uma revisão Git específica nem encontrada licença declarada na raiz daquele snapshot; não se atribui uma licença inexistente ao material de terceiros.
+- Enunciado: *Trabalho - Computacao Grafica.pdf*, fornecido para a atividade.
+- Aulas: *Computação Gráfica - Desenhando Formas com preenchimento.pdf* (atributos, interpolação e preenchimento); *2026 - Computação Gráfica - Trabalhando Texturas.pdf* (UV, samplers, filtros e imagens); *Visâo - Computação Gráfica.pdf* (cor, atenção e contraste). As páginas 22–27 do PDF de texturas não continham conteúdo didático.
+- Documentação das bibliotecas: https://www.pygame.org/docs/ ; https://pyopengl.sourceforge.net/documentation/ ; https://numpy.org/doc/ .
+- `assets/terreno.png`, `asfalto.png`, `solar.png`, `escamas.png`, `grade_uv.png`, `placa.png` e `estacao.png`: imagens originais geradas previamente por scripts Python/Pillow com apoio do ChatGPT. Não foram copiadas figuras dos PDFs nem usadas imagens externas. As placas rasterizam uma fonte do sistema; o arquivo da fonte não é distribuído. As texturas são carregadas de arquivos PNG, não calculadas como textura procedural no shader.
+
+As adaptações do framework incluem compatibilidade com NumPy 2; shaders externos; localização explícita do atributo de posição; inversa transposta para normais; textura de profundidade RGBA32F; PCF e bias; validação de atributos; controle de visibilidade; reutilização de matrizes e uniforms por quadro/material. Modelos, coreografia, colisões, scanner, cenário, agrupamento estático e painel foram elaborados para este projeto com o apoio declarado abaixo.
 
 ## Declaração de uso de inteligência artificial
 
-Foi utilizada a ferramenta **OpenAI Codex** para planejar a cena; escrever `scenery.py`, `sky.py`, `scanner.py`, `collision.py`, `main.py`, `models.py`, `simulation.py`, `appearance.py`, `geometry_tools.py`, scripts de instalação, testes e documentação; gerar as texturas PNG por scripts; adaptar componentes e shaders de `py3d/`; executar validações e analisar capturas. O framework de terceiros foi atribuído separadamente e não é declarado como autoria da dupla ou da IA. Os integrantes devem revisar o código, testar na máquina da apresentação, registrar suas contribuições reais e compreender os trechos antes da entrega. Não afirmar que os testes automáticos substituem sua revisão individual.
+Foi utilizada a ferramenta **OpenAI ChatGPT** para planejar e implementar a cena; escrever/revisar `main.py`, `models.py`, `simulation.py`, `collision.py`, `scanner.py`, `scenery.py`, `sky.py`, `appearance.py` e `geometry_tools.py`; adaptar componentes de `py3d/` e os shaders; gerar texturas por scripts; preparar instalação e documentação; e executar validações automatizadas e gráficas. 
 
-## Base preservada da versão 1.1
-
-- Rover com detalhes de pneus, cubos, antena, duas lentes e acabamento do chassi.
-- Dinossauro com cabeça e mandíbula articuladas, dentes, garras e encaixes de blocos.
-- Arrancada, chegada e virada com smoothstep; caminhada suavizada nas extremidades; leve movimento vertical do corpo.
-- Anel de reconhecimento giratório, ativo somente nos estados de inspeção/resposta e sem projetar sombra.
-- Parque com vegetação geométrica, cerca, placa com textura de imagem e plataforma.
-- Linha do tempo, relógio da missão, indicação de pausa, velocidade e câmera.
-- Câmeras predefinidas, acompanhamento, velocidade ajustável, repetição opcional e comparação de sombras.
-- F12 captura o quadro atual depois da renderização; criação automática da pasta de evidências.
-- Dez testes da simulação e teste gráfico dos novos comandos da interface.
-- Renderização otimizada: reutilização das matrizes globais e redução do envio repetido de uniforms. O benchmark da mesma cena passou de 10,3 para 34,1 FPS nesta máquina; é uma medição específica, sem garantia em outros computadores.
-
-As novas partes dos modelos e o acabamento também foram elaborados com apoio do Codex. O README continua exigindo o preenchimento dos dados e das contribuições reais da dupla.
-
-## Melhorias da versão 1.2 e relação com as aulas
-
-- Atributo `vertexColor` efetivamente usado e interpolado; gradientes nos personagens e terreno, com comparação F3.
-- Materiais PNG para pista, painel solar e escamas; nova textura de terreno menos carregada visualmente.
-- UV escaladas/deslocadas por uniforms, grade UV identificada e comparação de três filtros de amostragem.
-- Paleta que diferencia rover alaranjado e dinossauro verde-azulado; modo de foco e comparação em cinza inspirados nos tópicos de atenção/contraste.
-- Inspeção da triangulação por F8 e validação dos tamanhos dos atributos antes da criação do VAO.
-- Rodapé com fundo opaco para preservar a leitura sobre imagens detalhadas, inclusive no diagnóstico UV.
-- Treze testes unitários, testes reais de GPU dos conceitos e documentação com correspondência às páginas dos PDFs.
-- Benchmark curto da versão 1.2: 34,5 FPS na máquina registrada, sem HUD/limitador. O histórico de 10,3 → 34,1 FPS acima se refere à otimização da versão 1.1; não é uma nova medição antes/depois da versão 1.2.
-
-As novas comparações são opcionais e vêm desativadas; o laboratório é aberto por F1. Cores por vértice e filtro trilinear com mipmaps fazem parte do visual padrão. Reiniciar com R não redefine preferências visuais. Nenhuma melhoria retira a interação, a câmera, a pausa ou o shadow mapping obrigatório.
-
-## Correção da versão 1.3 — colisões
-
-- O rover para mais longe (3,8 unidades) e deixa a cauda completar a virada sem atravessar o veículo.
-- Colisores compostos por peça acompanham a hierarquia real; a proteção inclui cauda e sensor.
-- Subpassos de no máximo 1/120 s verificam o percurso antes de aceitar o movimento, inclusive em FPS baixo ou velocidade 2×.
-- Uma colisão rejeita o subpasso e restaura tempo, posições, articulações e rodas. A interface mostra BLOQUEADO; R reinicia, e a câmera continua disponível.
-- 19 testes unitários e um teste integrado com 3.841 poses, reprodução do defeito antigo e bloqueio de uma colisão forçada.
-- `tests/check_performance.py` agora inclui o guardião de colisões; benchmark curto nesta máquina: 28,6 FPS sem HUD/limitador. As medições de versões anteriores acima são históricas e não representam o custo desta versão.
-
-Use o novo ZIP em uma pasta separada e prepare o ambiente dessa pasta. O detector protege o rover e o dinossauro; não acrescenta física à câmera ou aos objetos estáticos. Consulte `COLISOES.md` e `evidencias/validacao_colisoes.json`.
-
-## Reconhecimento luminoso da versão 1.4
-
-O sensor agora emite automaticamente um feixe azul-ciano durante o reconhecimento, com halo na lente e iluminação focal na superfície do alvo. A origem e a direção seguem a matriz do sensor. O feixe respeita a profundidade da cena e seu raio central termina na primeira caixa do alvo encontrada, ou no alcance máximo. A pausa congela a varredura e o movimento da luz; a câmera permanece livre.
-
-As colisões da versão 1.3 permanecem ativas. A luz fica em uma passagem separada e não vira um obstáculo físico. Nenhuma dependência ou controle novo foi acrescentado. Veja `SCANNER.md` para shaders, uniforms, limitações e testes. A geração do efeito e as alterações foram desenvolvidas com apoio do OpenAI Codex, como declarado acima.
-
-## Cenário da versão 1.5
-
-O parque ganhou estação de pesquisa, portal de chegada, calçada, bancos, lago ornamental, palmeiras, samambaias e relevo. Um céu com gradiente e nuvens suaves complementa o fundo. O corredor do rover e do dinossauro foi mantido livre; a interação, o scanner luminoso e as colisões continuam funcionando.
-
-O ambiente estático foi agrupado por material: 287 malhas passaram a 49, sem agrupar as peças animadas. Consulte `CENARIO.md` para transformações, shaders e validação. A nova placa é original, gerada por `tools/gerar_cenario.py` e incluída em `assets/estacao.png`. Não há novos controles ou dependências.
+O framework de terceiros possui atribuição própria e não é apresentado como autoria da dupla ou da IA. O uso da ferramenta não substitui a revisão dos integrantes nem sua compreensão do código e das decisões de implementação.

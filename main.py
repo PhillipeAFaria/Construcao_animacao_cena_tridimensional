@@ -43,7 +43,7 @@ class Application:
         pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE,24)
         self.size=(1200,760)
         pygame.display.set_mode(self.size,pygame.OPENGL|pygame.DOUBLEBUF)
-        pygame.display.set_caption('ORBITA / Parque Jurassico 1.5 | Sensor luminoso | Espaco: pausa')
+        pygame.display.set_caption('ORBITA / Parque Jurassico | Phillipe Almeida Faria e Thiago Ferreira de Souza Junior')
         self.renderer=Renderer([.11,.18,.22])
         self.scene=Scene()
         self.camera=Camera(angle_of_view=48, aspect_ratio=self.size[0]/self.size[1],far=100)
@@ -223,7 +223,8 @@ class Application:
     def run(self):
         running=True; frame=0
         captures={0:'01_aproximacao',360:'02_sensor',480:'03_resposta',720:'04_acompanhamento',990:'05_final'}
-        out=ROOT/'evidencias'; out.mkdir(exist_ok=True)
+        out=ROOT/'evidencias'
+        if self.args.validate: out.mkdir(exist_ok=True)
         while running:
             real_dt=self.clock.tick(60)/1000
             dt=1/60 if self.args.validate else real_dt
