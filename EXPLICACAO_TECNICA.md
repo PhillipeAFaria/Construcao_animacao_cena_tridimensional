@@ -17,13 +17,13 @@ A cena usa uma implementação pública baseada no framework do livro, com adapt
 
 `transform` calcula `T @ Ry @ Rx @ Rz @ S`. Com vetores coluna, a escala atua primeiro, depois as rotações e por último a translação. Uma parte do personagem herda a matriz global de seu pai: `M_global = M_pai @ M_local`. O rover é pai dos pivôs das rodas e do sensor; o dinossauro é pai dos pivôs das pernas e da cauda. Cada peça tem dimensões por escala não uniforme de uma geometria reutilizada. Os pivôs são nós sem geometria e tornam a rotação uma articulação, em vez de uma órbita ao redor da origem global.
 
-A frente do rover é +X; a do dinossauro no modelo local é +Z. A virada de 90 graus em Y passa a frente do dinossauro para +X. As posições laterais são diferentes, por isso a separação de duas unidades é longitudinal e não a distância euclidiana total.
+A frente do rover é +X; a do dinossauro no modelo local é +Z. A virada de 90 graus em Y passa a frente do dinossauro para +X. As posições laterais são diferentes, por isso a separação de 3,8 unidades é longitudinal e não a distância euclidiana total.
 
 ## Tempo e coordenação
 
-Na execução normal `Clock.tick(60)/1000` mede o intervalo real entre quadros. O limite de 60 FPS regula o consumo; não define a velocidade. A aproximação segue `x = -7 + 5*smoothstep(t/5)`. O acompanhamento segue `x_dino = 4.55*smoothstep(t_estado/7)` e `x_rover = x_dino - 2`. A função smoothstep é `u²(3-2u)`, com u limitado a [0,1]; sua derivada é nula nas extremidades. Assim os deslocamentos continuam independentes de FPS, com arranque e chegada suaves.
+Na execução normal `Clock.tick(60)/1000` mede o intervalo real entre quadros. O limite de 60 FPS regula o consumo; não define a velocidade. A aproximação segue `x = -7 + 3.2*smoothstep(t/5)`. O acompanhamento segue `x_dino = 4.55*smoothstep(t_estado/7)` e `x_rover = x_dino - 3.8`. A função smoothstep é `u²(3-2u)`, com u limitado a [0,1]; sua derivada é nula nas extremidades. Assim os deslocamentos continuam independentes de FPS, com arranque e chegada suaves.
 
-`Simulation.update` consome o dt até a fronteira de um estado e reaproveita o excedente no seguinte. Isso evita que a troca de estados acumule atrasos diferentes conforme o FPS. O rover só libera a resposta após concluir o reconhecimento; só acompanha depois que termina a virada do dinossauro. A relação é programada por estados, sem detecção de colisões.
+`Simulation.update` consome o dt até a fronteira de um estado e reaproveita o excedente no seguinte. Isso evita que a troca de estados acumule atrasos diferentes conforme o FPS. O rover só libera a resposta após concluir o reconhecimento; só acompanha depois que termina a virada do dinossauro. A relação é programada por estados, com verificação cinemática de colisões entre as partes dos dois modelos antes de aceitar cada subpasso.
 
 Rodas: `ângulo = -distância / raio`, com raio 0,38. Pernas: seno em oposição de fase durante o acompanhamento. Cauda: seno do tempo acumulado da simulação. Sensor: varredura senoidal ao quadrado durante o reconhecimento. A cabeça reage ao sensor; a mandíbula abre e fecha durante a resposta. O corpo apresenta leve oscilação vertical na caminhada, e a amplitude das pernas é atenuada no início e no fim para evitar saltos de pose. Na pausa, o tempo da simulação não avança; o relógio usado na câmera continua ativo.
 
@@ -107,3 +107,9 @@ As coordenadas de textura são `vertexUV * repeatUV + offsetUV`. O terreno e a p
 `Appearance.refresh` altera uniforms e filtros apenas em resposta aos comandos. Ele não muda a simulação e não faz upload de imagens a cada quadro. A textura de sombras e a do HUD não são incluídas na troca dos filtros de cor. O cache de uniforms do renderizador continua válido porque é recriado a cada chamada de renderização, e os bindings de samplers são restabelecidos ao reutilizar materiais.
 
 No modo de foco, o shader aproxima a cor do ambiente de sua intensidade RGB ponderada e reduz seu brilho. Os materiais dos personagens e do indicador de reconhecimento são preservados. No modo cinza, converte os materiais da cena, mantendo o painel e o fundo independentes. São comparações gráficas ilustrativas, não modelos fisiológicos de visão. O modo malha altera `glPolygonMode` na passagem principal; o shadow mapping permanece preenchido.
+
+## Colisões cinemáticas da versão 1.3
+
+A distância anterior permitia que a cauda atravessasse o rover durante a rotação. A nova coreografia mantém 3,8 unidades longitudinais e o sensor acompanha a nova posição. O controle usa caixas compostas obtidas das geometrias reais e transformadas pelas matrizes de cada parte. O detector considera as três dimensões e margem de 0,10 unidade; não confunde uma peça alta com contato no chão.
+
+O callback `Application.can_advance` é usado no loop normal. `Simulation.update` verifica subpassos de até 1/120 s, rejeita poses inseguras e restaura atomicamente tempo, estado, rodas e articulações. As caixas conservadoras não fazem uma simulação de forças. Consulte `COLISOES.md` para detalhes, limites e testes de regressão da cauda.

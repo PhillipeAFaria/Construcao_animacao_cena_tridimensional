@@ -1,7 +1,9 @@
 {
-  "versao": "1.2",
+  "versao": "1.3",
   "frames": 1000,
   "estado_final": "CONCLUIDO",
+  "colisoes_evitadas": 0,
+  "verificacoes_colisao": 1920,
   "opengl": "3.3.0 NVIDIA 610.88",
   "gpu": "NVIDIA GeForce GTX 1660 Ti/PCIe/SSE2",
   "gl_error": 0,

@@ -39,3 +39,7 @@ Foram mantidos apenas os módulos Python transitivamente utilizados e os inicial
 - `geometry/geometry.py` e `core_ext/mesh.py`: validação dos comprimentos dos atributos e da contagem de vértices antes de montar o VAO.
 - `geometry_tools.py`, `appearance.py`, modelos, texturas originais e laboratório de comparações: aplicação específica dos conteúdos dos PDFs, não componentes originalmente atribuídos aos autores do framework.
 - Fontes de aula, páginas, decisões e limites: `APLICACAO_DOS_PDFS.md`; identificação por hash em `FONTES_PDFS.json`.
+
+## Adaptações da versão 1.3
+
+A pedido do usuário, a partir de uma captura de interpenetração, foram criados `collision.py`, testes de colisão e a integração do callback na simulação e na interface. A lógica foi elaborada com apoio do Codex e não é atribuída ao framework original. Usa posições das geometrias e matrizes de hierarquia já presentes no framework. Não foram acrescentadas dependências.

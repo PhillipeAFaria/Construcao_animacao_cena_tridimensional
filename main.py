@@ -18,6 +18,7 @@ from models import Models, transform
 from simulation import Simulation
 from appearance import Appearance
 from geometry_tools import apply_gradient
+from collision import CollisionWorld
 
 ROOT=Path(__file__).resolve().parent
 LABELS=('01 / APROXIMACAO', '02 / RECONHECIMENTO', '03 / RESPOSTA',
@@ -38,7 +39,7 @@ class Application:
         pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE,24)
         self.size=(1200,760)
         pygame.display.set_mode(self.size,pygame.OPENGL|pygame.DOUBLEBUF)
-        pygame.display.set_caption('ORBITA / Parque Jurassico 1.2 | F1: laboratorio | Espaco: pausa')
+        pygame.display.set_caption('ORBITA / Parque Jurassico 1.3 | Colisoes ativas | Espaco: pausa')
         self.renderer=Renderer([.11,.18,.22])
         self.scene=Scene()
         self.camera=Camera(angle_of_view=48, aspect_ratio=self.size[0]/self.size[1],far=100)
@@ -46,6 +47,8 @@ class Application:
         self.models=Models()
         self.rover,self.wheels,self.sensor=self.models.rover(self.scene)
         self.dino,self.legs,self.tail=self.models.dinosaur(self.scene)
+        self.collisions=CollisionWorld(self.rover,self.dino)
+        self.last_collision_contacts=[]
         self.scene.add(AmbientLight(color=[.40,.43,.44]))
         light=DirectionalLight(color=[.85,.80,.68],direction=[-6,-12,-7])
         light.set_position([6,12,7]); light.look_at([0,0,0]); self.scene.add(light)
@@ -120,8 +123,8 @@ class Application:
             mark.cast_shadow=False
             self.scan_ring.append((mark,a))
 
-    def apply_pose(self):
-        p=self.sim.pose()
+    def apply_pose(self,p=None):
+        p=self.sim.pose() if p is None else p
         transform(self.rover,(p.rover_x,0,-.75))
         transform(self.dino,(p.dino_x,p.body_bob,.75),yaw=p.dino_yaw)
         transform(self.sensor,(.4,2.02,0),yaw=-p.sensor_yaw)
@@ -137,6 +140,12 @@ class Application:
             a=angle+self.sim.time*.7
             radius=1.45+.08*math.sin(self.sim.time*5)
             transform(mesh,(p.dino_x+radius*math.cos(a),.065,.75+radius*math.sin(a)),yaw=-a,scale=(.18,.035,.055))
+
+    def can_advance(self,pose):
+        self.apply_pose(pose)
+        contacts=self.collisions.contacts()
+        if contacts:self.last_collision_contacts=contacts
+        return not contacts
 
     def controls(self,dt):
         keys=pygame.key.get_pressed()
@@ -206,7 +215,7 @@ class Application:
                 if not self.handle_event(event): running=False
             if self.loop and self.sim.stage==4 and not self.sim.paused:
                 self.sim.reset()
-            self.sim.update(dt*self.speed)
+            self.sim.update(dt*self.speed,self.can_advance)
             self.controls(real_dt)
             self.apply_pose()
             self.renderer.render(self.scene,self.camera)
@@ -220,7 +229,9 @@ class Application:
             pygame.display.flip()
             frame+=1
             if self.args.validate and frame>=1000:
-                report={'versao':'1.2','frames':frame,'estado_final':self.sim.name,
+                report={'versao':'1.3','frames':frame,'estado_final':self.sim.name,
+                    'colisoes_evitadas':self.sim.prevented_collisions,
+                    'verificacoes_colisao':self.collisions.checks,
                     'opengl':GL.glGetString(GL.GL_VERSION).decode(),
                     'gpu':GL.glGetString(GL.GL_RENDERER).decode(),
                     'gl_error':int(error),'shadow_resolution':2048}
@@ -252,7 +263,7 @@ class HUD:
         self.last=None
 
     def draw(self,sim,help_on,speed=1.0,camera='LIVRE',loop=False,shadows=True,appearance=None):
-        key=(sim.stage,sim.paused,help_on,int(sim.time*10),speed,camera,loop,shadows,
+        key=(sim.stage,sim.paused,sim.collision_blocked,help_on,int(sim.time*10),speed,camera,loop,shadows,
              appearance.state if appearance else None)
         if key!=self.last:
             surface=self.texture.surface; surface.fill((0,0,0,0))
@@ -263,6 +274,9 @@ class HUD:
             surface.blit(self.title.render('Encontro no parque',True,ink),(42,58))
             surface.blit(self.font.render(LABELS[sim.stage],True,mint),(42,95))
             surface.blit(self.font.render(DESCRIPTIONS[sim.stage],True,muted),(42,125))
+            if sim.collision_blocked:
+                pygame.draw.rect(surface,(76,39,25,250),(385,176,460,42),border_radius=10)
+                surface.blit(self.font.render('Movimento bloqueado para evitar colisao. R reinicia.',True,(255,220,162)),(398,185))
             if appearance and appearance.panel:
                 pygame.draw.rect(surface,(12,29,34,247),(22,176,338,246),border_radius=12)
                 surface.blit(self.font.render('LABORATORIO VISUAL  /  F1 fecha',True,mint),(39,189))
@@ -276,8 +290,8 @@ class HUD:
                 for i,line in enumerate(lines):
                     surface.blit(self.font.render(line,True,ink),(39,224+i*26))
             pygame.draw.rect(surface,(12,29,34,238),(936,22,242,140),border_radius=14)
-            status='PAUSADO' if sim.paused else ('CONCLUIDO' if sim.stage==4 else 'EM ANDAMENTO')
-            surface.blit(self.font.render(status,True,(244,202,112) if sim.paused else mint),(954,36))
+            status='BLOQUEADO' if sim.collision_blocked else ('PAUSADO' if sim.paused else ('CONCLUIDO' if sim.stage==4 else 'EM ANDAMENTO'))
+            surface.blit(self.font.render(status,True,(244,202,112) if sim.paused or sim.collision_blocked else mint),(954,36))
             for i,line in enumerate((f'Tempo {sim.time:04.1f}s / 16s   |   {speed:g}x',
                                      'Camera: '+camera.lower(),
                                      'Repetir: '+('sim' if loop else 'nao')+'  |  Sombras: '+('sim' if shadows else 'nao'))):

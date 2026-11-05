@@ -1,6 +1,6 @@
-# Órbita — Parque Jurássico 1.2
+# Órbita — Parque Jurássico 1.3
 
-Rover explorador + dinossauro de blocos. Versão aprimorada a partir dos três PDFs das aulas; as versões anteriores permanecem separadas. Consulte `APLICACAO_DOS_PDFS.md` para a relação entre páginas, conceitos e código.
+Rover explorador + dinossauro de blocos. Versão com colisões entre os personagens e folga para a cauda, preservando as melhorias baseadas nos três PDFs das aulas; as versões anteriores permanecem separadas. Consulte `APLICACAO_DOS_PDFS.md` para a relação entre páginas, conceitos e código.
 
 Aplicação 3D acadêmica em Python, Pygame e OpenGL, usando componentes de uma implementação pública do framework de Stemkoski e Pascale. Os modelos e a coreografia desta cena foram construídos especificamente para esta atividade, com apoio de IA declarado abaixo.
 
@@ -20,13 +20,13 @@ Os temas foram definidos pelo solicitante; o programa não comprova a realizaç�
 
 Um rover entra em uma pista de testes de um parque de demonstração e reconhece um dinossauro de blocos. Não existe terceiro personagem. O ambiente é um diorama com terreno texturizado, pista, árvores de blocos, cerca, placa texturizada, rochas e marcos de destino.
 
-1. **0–5 s — aproximação:** o rover percorre cinco unidades; rodas giram proporcionalmente ao percurso. O dinossauro movimenta a cauda enquanto aguarda.
-2. **5–7 s — reconhecimento:** atingida a distância longitudinal de duas unidades, o rover para e gira seu sensor. Um anel de reconhecimento animado identifica o alvo e o dinossauro vira a cabeça em resposta.
+1. **0–5 s — aproximação:** o rover percorre 3,2 unidades; rodas giram proporcionalmente ao percurso. O dinossauro movimenta a cauda enquanto aguarda.
+2. **5–7 s — reconhecimento:** atingida a distância longitudinal de 3,8 unidades, o rover para e gira seu sensor. Um anel de reconhecimento animado identifica o alvo e o dinossauro vira a cabeça em resposta.
 3. **7–9 s — resposta:** concluída a varredura, o dinossauro gira 90 graus e movimenta a mandíbula. O rover continua parado.
-4. **9–16 s — acompanhamento:** somente depois da virada ambos percorrem 4,55 unidades, em faixas laterais distintas, com aceleração e desaceleração suaves (velocidade média de 0,65 unidade/s; não constante). O rover mantém duas unidades de separação longitudinal; o dinossauro alterna as pernas e oscila a cauda.
+4. **9–16 s — acompanhamento:** somente depois da virada ambos percorrem 4,55 unidades, em faixas laterais distintas, com aceleração e desaceleração suaves (velocidade média de 0,65 unidade/s; não constante). O rover mantém 3,8 unidades de separação longitudinal; o dinossauro alterna as pernas e oscila a cauda.
 5. **Após 16 s — conclusão:** a cena permanece visível. Pressione R para repetir; L habilita repetição automática opcional.
 
-As condições de conclusão de cada estado liberam o próximo. O movimento usa segundos decorridos, não incrementos fixos por quadro. Não há física, colisões, IA de personagens nem busca de caminhos; não são exigidas pelo trabalho.
+As condições de conclusão de cada estado liberam o próximo. O movimento usa segundos decorridos, não incrementos fixos por quadro. Há detecção cinemática de colisões entre as peças do rover e do dinossauro, com bloqueio preventivo de movimentos. Não há motor de física, IA de personagens ou busca de caminhos. Leia `COLISOES.md` para a implementação e os limites.
 
 ## Instalação e execução
 
@@ -90,6 +90,7 @@ Se a janela falhar antes de aparecer, confira a versão do Python e atualize o d
 | Shadow mapping em duas passagens | `py3d/core_ext/renderer.py`: `Renderer.render`; `py3d/light/shadow.py`; `shaders/depth.vert`, `shaders/depth.frag` |
 | Textura de profundidade e framebuffer | `py3d/core_ext/render_target.py`: `RenderTarget` |
 | Painel de estado e linha do tempo em textura 2D | `main.py`: `HUD`; `py3d/material/texture.py` |
+| Colisões e folga para a cauda | `collision.py`; `simulation.py`: `Simulation.update`; `main.py`: `Application.can_advance`; `COLISOES.md` |
 | Cores por vértice e gradientes | `geometry_tools.py`; `shaders/phong.vert`, `shaders/phong.frag` |
 | Laboratório de UV, filtros e contraste | `appearance.py`; `main.py`: `Application.handle_event`, `HUD.draw` |
 | Envio de atributos e uniforms | `py3d/core/attribute.py`, `py3d/core/uniform.py` |
@@ -133,7 +134,7 @@ Resultados medidos e limites estão em `VALIDACAO.md`. Os arquivos JSON e imagen
 
 ## Declaração de uso de inteligência artificial
 
-Foi utilizada a ferramenta **OpenAI Codex** para planejar a cena; escrever `main.py`, `models.py`, `simulation.py`, `appearance.py`, `geometry_tools.py`, scripts de instalação, testes e documentação; gerar as texturas PNG por scripts; adaptar componentes e shaders de `py3d/`; executar validações e analisar capturas. O framework de terceiros foi atribuído separadamente e não é declarado como autoria da dupla ou da IA. Os integrantes devem revisar o código, testar na máquina da apresentação, registrar suas contribuições reais e compreender os trechos antes da entrega. Não afirmar que os testes automáticos substituem sua revisão individual.
+Foi utilizada a ferramenta **OpenAI Codex** para planejar a cena; escrever `collision.py`, `main.py`, `models.py`, `simulation.py`, `appearance.py`, `geometry_tools.py`, scripts de instalação, testes e documentação; gerar as texturas PNG por scripts; adaptar componentes e shaders de `py3d/`; executar validações e analisar capturas. O framework de terceiros foi atribuído separadamente e não é declarado como autoria da dupla ou da IA. Os integrantes devem revisar o código, testar na máquina da apresentação, registrar suas contribuições reais e compreender os trechos antes da entrega. Não afirmar que os testes automáticos substituem sua revisão individual.
 
 ## Base preservada da versão 1.1
 
@@ -162,3 +163,14 @@ As novas partes dos modelos e o acabamento também foram elaborados com apoio do
 - Benchmark curto da versão 1.2: 34,5 FPS na máquina registrada, sem HUD/limitador. O histórico de 10,3 → 34,1 FPS acima se refere à otimização da versão 1.1; não é uma nova medição antes/depois da versão 1.2.
 
 As novas comparações são opcionais e vêm desativadas; o laboratório é aberto por F1. Cores por vértice e filtro trilinear com mipmaps fazem parte do visual padrão. Reiniciar com R não redefine preferências visuais. Nenhuma melhoria retira a interação, a câmera, a pausa ou o shadow mapping obrigatório.
+
+## Correção da versão 1.3 — colisões
+
+- O rover para mais longe (3,8 unidades) e deixa a cauda completar a virada sem atravessar o veículo.
+- Colisores compostos por peça acompanham a hierarquia real; a proteção inclui cauda e sensor.
+- Subpassos de no máximo 1/120 s verificam o percurso antes de aceitar o movimento, inclusive em FPS baixo ou velocidade 2×.
+- Uma colisão rejeita o subpasso e restaura tempo, posições, articulações e rodas. A interface mostra BLOQUEADO; R reinicia, e a câmera continua disponível.
+- 19 testes unitários e um teste integrado com 3.841 poses, reprodução do defeito antigo e bloqueio de uma colisão forçada.
+- `tests/check_performance.py` agora inclui o guardião de colisões; benchmark curto nesta máquina: 28,6 FPS sem HUD/limitador. As medições de versões anteriores acima são históricas e não representam o custo desta versão.
+
+Use o novo ZIP em uma pasta separada e prepare o ambiente dessa pasta. O detector protege o rover e o dinossauro; não acrescenta física à câmera ou aos objetos estáticos. Consulte `COLISOES.md` e `evidencias/validacao_colisoes.json`.

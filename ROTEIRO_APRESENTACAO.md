@@ -5,7 +5,7 @@ Antes da aula: preencher nomes e contribuições no README; instalar as dependê
 | Tempo | Responsável sugerido | Conteúdo |
 |---|---|---|
 | 0:00–1:00 | Ambos | Identificar dupla e temas. Explicar parque de demonstração e objetivo do reconhecimento. |
-| 1:00–2:00 | Integrante 1 | Mostrar o ciclo completo. Apontar rover aguardando o sensor e a virada do dinossauro. |
+| 1:00–2:00 | Integrante 1 | Mostrar o ciclo completo. Apontar rover aguardando o sensor e a virada do dinossauro, agora com folga para a cauda. Explicar que os movimentos são verificados por colisores compostos. |
 | 2:00–3:00 | Integrante 1 | Pausar com Espaço, mover a câmera com setas e W/S, alternar vistas com 1/2/3 e retomar. Use [ para desacelerar se necessário. Explicar tempo decorrido. |
 | 3:00–4:00 | Integrante 2 | Mostrar composição dos modelos e pivôs de cauda, pernas, rodas e sensor em models.py. |
 | 4:00–5:00 | Integrante 1 | Abrir simulation.py: estados, transições e reaproveitamento do dt. |
@@ -39,3 +39,7 @@ Antes da aula: preencher nomes e contribuições no README; instalar as dependê
 - Por que filtros não mudam a geometria? Eles afetam a consulta de texels. Comparar F4/F5 pausado e depois F8 para inspecionar os mesmos triângulos.
 - O que o sampler recebe? O número da unidade de textura; o identificador da textura é ligado a essa unidade por glBindTexture.
 - Como foi usado o PDF de visão? Para escolhas de separação cromática, foco e legibilidade. A conversão em cinza é ilustrativa e não simula uma condição clínica.
+
+## Pergunta sobre a correção de colisões
+
+Por que apenas comparar os centros não bastava? A cauda ocupa um volume que muda durante a virada. O programa agora compara caixas das partes transformadas, incluindo cauda e sensor, e rejeita cada subpasso inseguro. A distância de 3,8 unidades evita contatos no percurso normal; o detector continua ativo como proteção. Não há quique ou forças: a resposta é interromper o movimento preservando a última pose segura.

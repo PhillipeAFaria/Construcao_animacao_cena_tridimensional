@@ -125,6 +125,7 @@ class Models:
             for dx in (-.12,0,.12):
                 self.part(p,(dx,-.77,.66),(.075,.10,.16),(.93,.86,.60))
         tail=self.pivot(root,(0,1.30,-.72))
+        tail.collision_name='cauda'
         self.part(tail,(0,0,-.58),(.57,.52,1.2),green)
         self.part(tail,(0,.08,-1.35),(.34,.31,.60),light)
         self.part(tail,(0,.13,-1.76),(.17,.17,.32),green)

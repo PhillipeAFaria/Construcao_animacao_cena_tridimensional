@@ -1,0 +1,30 @@
+{
+  "legacy_tail_overlap_reproduced": true,
+  "samples": 3841,
+  "minimum_part_aabb_clearance": 0.431929711588497,
+  "collision_margin": 0.1,
+  "runs": [
+    {
+      "fps": 15,
+      "velocidade": 2,
+      "estado": "CONCLUIDO"
+    },
+    {
+      "fps": 30,
+      "velocidade": 1,
+      "estado": "CONCLUIDO"
+    },
+    {
+      "fps": 60,
+      "velocidade": 1,
+      "estado": "CONCLUIDO"
+    },
+    {
+      "fps": 144,
+      "velocidade": 2,
+      "estado": "CONCLUIDO"
+    }
+  ],
+  "forced_collision_blocked": true,
+  "gl_error": 0
+}

@@ -1,9 +1,9 @@
 {
-  "vertex_color_pixels_changed": 403644,
-  "uv_grid_pixels_changed": 514569,
-  "filter_pixels_changed": 227420,
-  "focus_pixels_changed": 573361,
-  "wireframe_pixels_changed": 576290,
+  "vertex_color_pixels_changed": 403474,
+  "uv_grid_pixels_changed": 513526,
+  "filter_pixels_changed": 226893,
+  "focus_pixels_changed": 572030,
+  "wireframe_pixels_changed": 576228,
   "interpolation_rgb_samples": [
     [
       64,

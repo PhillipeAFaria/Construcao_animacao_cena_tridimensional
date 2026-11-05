@@ -1,5 +1,5 @@
 import unittest
-from simulation import Simulation
+from simulation import Simulation,FOLLOW_DISTANCE
 
 class SimulationTests(unittest.TestCase):
     def advance(self,fps,seconds):
@@ -19,9 +19,9 @@ class SimulationTests(unittest.TestCase):
 
     def test_causal_sequence(self):
         sim=Simulation(); sim.update(5)
-        self.assertEqual(sim.name,'RECONHECIMENTO'); self.assertAlmostEqual(sim.rover_x,-2)
+        self.assertEqual(sim.name,'RECONHECIMENTO'); self.assertAlmostEqual(sim.rover_x,-FOLLOW_DISTANCE)
         sim.update(1)
-        self.assertAlmostEqual(sim.dino_x,0); self.assertAlmostEqual(sim.rover_x,-2)
+        self.assertAlmostEqual(sim.dino_x,0); self.assertAlmostEqual(sim.rover_x,-FOLLOW_DISTANCE)
         sim.update(1)
         self.assertEqual(sim.name,'RESPOSTA')
         sim.update(1)
@@ -29,7 +29,7 @@ class SimulationTests(unittest.TestCase):
         sim.update(1)
         self.assertEqual(sim.name,'ACOMPANHAMENTO')
         sim.update(3)
-        self.assertGreater(sim.dino_x,0); self.assertAlmostEqual(sim.dino_x-sim.rover_x,2)
+        self.assertGreater(sim.dino_x,0); self.assertAlmostEqual(sim.dino_x-sim.rover_x,FOLLOW_DISTANCE)
 
     def test_pause_resume(self):
         sim=Simulation(); sim.update(6); before=sim.pose()

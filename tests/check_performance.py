@@ -1,4 +1,4 @@
-"""Mede 40 quadros da cena com GPU sincronizada; sem HUD ou limitador de FPS."""
+"""Mede 40 quadros com colisões ativas; sem HUD ou limitador de FPS."""
 import sys
 import time
 from pathlib import Path
@@ -17,7 +17,7 @@ try:
     start=time.perf_counter()
     for _ in range(40):
         pygame.event.pump()
-        app.sim.update(1/60)
+        app.sim.update(1/60,app.can_advance)
         app.apply_pose()
         app.renderer.render(app.scene,app.camera)
     GL.glFinish()
