@@ -20,6 +20,9 @@ from appearance import Appearance
 from geometry_tools import apply_gradient
 from collision import CollisionWorld
 from scanner import Scanner
+from scenery import decorate,batch_static
+from sky import Sky
+from py3d.core_ext.object3d import Object3D
 
 ROOT=Path(__file__).resolve().parent
 LABELS=('01 / APROXIMACAO', '02 / RECONHECIMENTO', '03 / RESPOSTA',
@@ -40,7 +43,7 @@ class Application:
         pygame.display.gl_set_attribute(pygame.GL_DEPTH_SIZE,24)
         self.size=(1200,760)
         pygame.display.set_mode(self.size,pygame.OPENGL|pygame.DOUBLEBUF)
-        pygame.display.set_caption('ORBITA / Parque Jurassico 1.4 | Sensor luminoso | Espaco: pausa')
+        pygame.display.set_caption('ORBITA / Parque Jurassico 1.5 | Sensor luminoso | Espaco: pausa')
         self.renderer=Renderer([.11,.18,.22])
         self.scene=Scene()
         self.camera=Camera(angle_of_view=48, aspect_ratio=self.size[0]/self.size[1],far=100)
@@ -59,6 +62,7 @@ class Application:
         self.environment()
         self.appearance=Appearance(self.scene,[self.rover,self.dino]+[mesh for mesh,_ in self.scan_ring])
         self.scanner=Scanner(self.sensor,self.scene,self.collisions.dinosaur)
+        self.sky=Sky()
         self.azimuth=-.65; self.elevation=.46; self.radius=17
         self.target=[-.6,1,0]
         self.camera_mode='LIVRE'
@@ -71,59 +75,63 @@ class Application:
         self.clock=pygame.time.Clock()
 
     def environment(self):
+        self.environment_root=Object3D()
+        self.scene.add(self.environment_root)
         ground=RectangleGeometry(width=28,height=20)
         apply_gradient(ground,low=(.72,.77,.73),high=(1,1,.96),axis=0)
         material=PhongMaterial(texture=Texture(str(ROOT/'assets/terreno.png')),
             number_of_light_sources=2,use_shadow=True,
             property_dict={'specularStrength':.02,'baseColor':[1,1,1],
                            'useVertexColors':True,'repeatUV':[9,7]})
-        floor=Mesh(ground,material); floor.rotate_x(-math.pi/2); self.scene.add(floor)
-        self.models.part(self.scene,(0,-.32,0),(28,.60,20),(.20,.29,.28))
-        self.models.part(self.scene,(0,-.065,0),(28,.12,20),(.38,.48,.33))
+        floor=Mesh(ground,material); floor.rotate_x(-math.pi/2); self.environment_root.add(floor)
+        self.models.part(self.environment_root,(0,-.32,0),(28,.60,20),(.20,.29,.28))
+        self.models.part(self.environment_root,(0,-.065,0),(28,.12,20),(.38,.48,.33))
         # Pista de demonstração paralela ao eixo X e marcos de destino.
         road_material=self.models.material((1,1,1),'asfalto.png')
         road_material.set_properties({'repeatUV':[9,2.3],'specularStrength':.03})
         road=Mesh(self.models.box,road_material)
-        transform(road,(-.8,.014,0),scale=(18,.025,4.6));self.scene.add(road)
+        transform(road,(-.8,.014,0),scale=(18,.025,4.6));self.environment_root.add(road)
         for z in (-2.18,2.18):
-            self.models.part(self.scene,(-.8,.035,z),(18,.02,.065),(.86,.79,.44))
+            self.models.part(self.environment_root,(-.8,.035,z),(18,.02,.065),(.86,.79,.44))
         for x in range(-9,9,2):
-            self.models.part(self.scene,(x,.04,0),(.65,.02,.06),(.68,.75,.63))
+            self.models.part(self.environment_root,(x,.04,0),(.65,.02,.06),(.68,.75,.63))
         for x,z,s in ((-8,-5,1.1),(6,-5,.9),(9,4,1.4),(-10,4,.7),(2,-6,.6)):
-            rock=self.models.part(self.scene,(x,s*.32,z),(s,s*.64,s*.8),(.40,.45,.39))
+            rock=self.models.part(self.environment_root,(x,s*.32,z),(s,s*.64,s*.8),(.40,.45,.39))
             rock.rotate_y(x*.3)
         for z in (-2.7,2.7):
-            self.models.part(self.scene,(6,.55,z),(.15,1.1,.15),(.86,.79,.44))
-            self.models.part(self.scene,(6,1.16,z),(.3,.12,.3),(.15,.65,.61))
+            self.models.part(self.environment_root,(6,.55,z),(.15,1.1,.15),(.86,.79,.44))
+            self.models.part(self.environment_root,(6,1.16,z),(.3,.12,.3),(.15,.65,.61))
         # Vegetação feita com a mesma geometria de caixas/cilindros dos modelos.
         for x,z,s in ((-10,-6,1.1),(-5,-7,1.3),(1,-7,1.1),(8,-6,1.2),
                       (-11,5,.85),(10,6,1.05),(5,7,.9)):
-            self.models.part(self.scene,(x,.65*s,z),(.25*s,1.3*s,.25*s),(.37,.29,.19))
+            self.models.part(self.environment_root,(x,.65*s,z),(.25*s,1.3*s,.25*s),(.37,.29,.19))
             for y,w,color in ((1.5,1.3,(.24,.43,.31)),(2.05,1.05,(.32,.53,.36)),(2.5,.65,(.43,.62,.38))):
-                foliage=self.models.part(self.scene,(x,y*s,z),(w*s,.65*s,w*s),color)
+                foliage=self.models.part(self.environment_root,(x,y*s,z),(w*s,.65*s,w*s),color)
                 foliage.rotate_y(.25*x)
         for x in range(-10,11,2):
-            self.models.part(self.scene,(x,.45,-4.2),(.10,.90,.10),(.54,.63,.52))
+            self.models.part(self.environment_root,(x,.45,-4.2),(.10,.90,.10),(.54,.63,.52))
         for y in (.32,.72):
-            self.models.part(self.scene,(0,y,-4.2),(20,.065,.065),(.64,.72,.60))
+            self.models.part(self.environment_root,(0,y,-4.2),(20,.065,.065),(.64,.72,.60))
         for x in (-5.8,-3.2):
-            self.models.part(self.scene,(x,1.0,-4.8),(.13,2.0,.13),(.20,.31,.31))
-        self.models.part(self.scene,(-4.5,2.05,-4.82),(3.5,1.30,.15),(.12,.22,.24))
+            self.models.part(self.environment_root,(x,1.0,-4.8),(.13,2.0,.13),(.20,.31,.31))
+        self.models.part(self.environment_root,(-4.5,2.05,-4.82),(3.5,1.30,.15),(.12,.22,.24))
         sign_material=PhongMaterial(texture=Texture(str(ROOT/'assets/placa.png')),
             number_of_light_sources=2,use_shadow=True,property_dict={'specularStrength':.02})
         sign=Mesh(RectangleGeometry(width=3.3,height=1.12),sign_material)
-        sign.set_position([-4.5,2.05,-4.73]); self.scene.add(sign)
+        sign.set_position([-4.5,2.05,-4.73]); self.environment_root.add(sign)
         for x in (-7,5.6):
             for i in range(20):
                 a=i*2*math.pi/20
-                mark=self.models.part(self.scene,(x+.85*math.cos(a),.045,.85*math.sin(a)),(.18,.025,.055),(.74,.79,.48))
+                mark=self.models.part(self.environment_root,(x+.85*math.cos(a),.045,.85*math.sin(a)),(.18,.025,.055),(.74,.79,.48))
                 mark.rotate_y(-a-math.pi/2)
         self.scan_ring=[]
         for i in range(24):
             a=i*2*math.pi/24
-            mark=self.models.part(self.scene,(0,.07,0),(.18,.035,.055),(.24,.92,.82))
+            mark=self.models.part(self.environment_root,(0,.07,0),(.18,.035,.055),(.24,.92,.82))
             mark.cast_shadow=False
             self.scan_ring.append((mark,a))
+        decorate(self.environment_root,self.models)
+        self.environment_batch=batch_static(self.environment_root,[mesh for mesh,_ in self.scan_ring])
 
     def apply_pose(self,p=None):
         p=self.sim.pose() if p is None else p
@@ -148,6 +156,12 @@ class Application:
         contacts=self.collisions.contacts()
         if contacts:self.last_collision_contacts=contacts
         return not contacts
+
+    def draw_scene(self):
+        self.scanner.update(self.sim,self.appearance.gray)
+        self.sky.render()
+        self.renderer.render(self.scene,self.camera,clear_color=False)
+        self.scanner.render(self.camera)
 
     def controls(self,dt):
         keys=pygame.key.get_pressed()
@@ -220,9 +234,7 @@ class Application:
             self.sim.update(dt*self.speed,self.can_advance)
             self.controls(real_dt)
             self.apply_pose()
-            self.scanner.update(self.sim,self.appearance.gray)
-            self.renderer.render(self.scene,self.camera)
-            self.scanner.render(self.camera)
+            self.draw_scene()
             self.hud.draw(self.sim,self.show_help,self.speed,self.camera_mode,self.loop,self.shadows,self.appearance)
             if self.pending_capture:
                 self.capture(out/'captura.png'); self.pending_capture=False
@@ -233,8 +245,9 @@ class Application:
             pygame.display.flip()
             frame+=1
             if self.args.validate and frame>=1000:
-                report={'versao':'1.4','frames':frame,'estado_final':self.sim.name,
+                report={'versao':'1.5','frames':frame,'estado_final':self.sim.name,
                     'colisoes_evitadas':self.sim.prevented_collisions,
+                    'cenario':self.environment_batch,
                     'verificacoes_colisao':self.collisions.checks,
                     'opengl':GL.glGetString(GL.GL_VERSION).decode(),
                     'gpu':GL.glGetString(GL.GL_RENDERER).decode(),

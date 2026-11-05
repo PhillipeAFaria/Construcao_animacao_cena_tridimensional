@@ -1,6 +1,6 @@
 {
   "shadow_map_components_changed": 264003,
-  "pixels_affected_by_shadow": 37735,
+  "pixels_affected_by_shadow": 56491,
   "camera_during_pause": "PASS",
   "interface_commands": "PASS",
   "gl_error": 0

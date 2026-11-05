@@ -1,4 +1,4 @@
-# Registro de validação — versão 1.4 — 04/11/2026
+# Registro de validação — versão 1.5 — 04/11/2026
 
 ## Ambiente medido
 
@@ -18,7 +18,7 @@
 | Passos grandes | Intervalo que cruza vários estados termina corretamente sem acumular atraso de quadro |
 | Execução gráfica | 1.000 quadros, estado final CONCLUIDO, nenhum erro reportado por glGetError |
 | Shadow mapping dinâmico | 264.003 componentes do mapa mudaram entre poses distintas |
-| Efeito visível das sombras | 37.735 pixels mudaram mais de oito níveis em pelo menos um canal ao desligar a comparação de sombras |
+| Efeito visível das sombras | 56.491 pixels mudaram mais de oito níveis em pelo menos um canal ao desligar a comparação de sombras |
 | Câmera durante pausa | Pose da simulação permanece igual e imagem muda ao alterar a câmera |
 | Shaders | Phong, depth e painel compilados e vinculados na GPU real |
 | Instalador Windows | Mesmo instalador já verificado na versão anterior; mesmas quatro dependências, sem alteração |
@@ -38,6 +38,9 @@
 | Regressão e bloqueio | Sobreposição antiga da cauda reproduzida; colisão forçada rejeitada sem avanço do tempo |
 | Scanner luminoso | 1.389 pixels afetados pela iluminação de superfície; mais 3.590 pixels alterados pela representação do feixe |
 | Sincronização do scanner | Origem na lente, somente no reconhecimento, pausa preservada e escrita de profundidade restaurada |
+| Cenário estático | 287 malhas agrupadas em 49; 3.618 triângulos |
+| Agrupamento visual | Comparação controlada antes/depois: zero pixels com diferença acima de cinco níveis |
+| Passagem completa | Céu, cena, scanner e HUD renderizados; dados geométricos finitos e atributos validados |
 | Robustez do tempo | Rejeição de dt infinito, NaN e negativo |
 | Desempenho histórico da cena 1.3 | 40 quadros com guardião de colisões, sem limitador e sem HUD: 1,401 s / 28,6 FPS |
 
@@ -54,3 +57,5 @@ O pacote não inclui intérprete Python, bibliotecas instaladas ou executável a
 As colisões são cinemáticas entre os dois personagens, por AABBs conservadoras das peças. A câmera e os elementos estáticos não têm resposta física. Evidência: `evidencias/validacao_colisoes.json`.
 
 O efeito luminoso foi conferido visualmente na captura real `13_reconhecimento_luminoso.png`. Dados: `evidencias/validacao_scanner.json`. O benchmark histórico não mede o custo adicional do efeito ativo.
+
+Cenário ampliado: `evidencias/validacao_cenario.json` e `14_cenario_parque.png`. Benchmark curto da geometria com colisões ativas, sem HUD/céu/scanner: 40 quadros em 1,468 s, cerca de 27,3 FPS nesta máquina. Não equivale ao desempenho garantido da aplicação completa.

@@ -45,3 +45,5 @@ Antes da aula: preencher nomes e contribuições no README; instalar as dependê
 Por que apenas comparar os centros não bastava? A cauda ocupa um volume que muda durante a virada. O programa agora compara caixas das partes transformadas, incluindo cauda e sensor, e rejeita cada subpasso inseguro. A distância de 3,8 unidades evita contatos no percurso normal; o detector continua ativo como proteção. Não há quique ou forças: a resposta é interromper o movimento preservando a última pose segura.
 
 Na etapa de reconhecimento, apontar a luz saindo da lente e a iluminação na superfície do dinossauro. Pausar para girar a câmera e mostrar a profundidade do feixe. Explicar que é um efeito emissivo mais contribuição focal no Phong, mantendo a sombra direcional existente.
+
+Mostrar o parque de pesquisa, a separação entre a pista e as estruturas e a composição por primitivas. Explicar que o agrupamento estático reduz chamadas de desenho, preservando UV/normais e mantendo as partes animadas separadas.

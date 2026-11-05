@@ -47,3 +47,7 @@ A pedido do usuário, a partir de uma captura de interpenetração, foram criado
 ## Adaptações da versão 1.4
 
 `scanner.py`, shaders `scanner.*`, testes e contribuição focal nos shaders Phong foram elaborados para o reconhecimento luminoso, com apoio do Codex. O efeito reutiliza geometria, materiais, matrizes, cena e renderizador do framework; não é atribuído aos exemplos originais. Não acrescenta bibliotecas.
+
+## Adaptações da versão 1.5
+
+Composição do parque em `scenery.py`, agrupamento estático, fundo em `sky.py`/`shaders/sky.*`, placa em `tools/gerar_cenario.py` e teste do cenário foram elaborados com apoio do Codex. Reutilizam as geometrias e classes do framework atribuído acima. Não foram importados modelos de terceiros nem adicionadas bibliotecas.

@@ -121,3 +121,9 @@ O callback `Application.can_advance` é usado no loop normal. `Simulation.update
 Além dos uniforms existentes, o Phong usa `scannerActive` (intensidade), `scannerPosition` e `scannerDirection` (origem/direção em mundo) e `scannerColor`. O termo adicional depende da normal, distância e abertura angular, e é aplicado antes dos modos de foco/cinza. A luz direcional mantém seu shadow mapping; não há nova passagem de sombra focal.
 
 O volume luminoso usa os shaders `scanner.vert` e `scanner.frag`, com atributos de posição/UV, matrizes M/V/P e uniforms de cor, intensidade, tempo e modo do efeito. Mistura aditiva com teste de profundidade mantém a luz visível sem substituir as superfícies. A escrita de profundidade é restaurada após a passagem. Detalhes e limites estão em `SCANNER.md`.
+
+## Cenário e agrupamento da versão 1.5
+
+`environment_root` organiza o ambiente. `scenery.decorate` compõe a infraestrutura e vegetação por caixas e cilindros. `batch_static` transforma as posições de vértice para o mundo e as normais pela inversa transposta, preserva UV/cores e agrupa as malhas estáticas por material/sombra. Os 287 objetos estáticos resultam em 49 chamadas de malha por passagem, com as partes animadas e o anel excluídos desse processo.
+
+`Application.draw_scene` centraliza a sequência de céu, cena opaca com shadow mapping e scanner emissivo; o HUD continua por último. O céu utiliza `vertexPosition`, `vertexUV` e matrizes M/V/P em shaders próprios; não é incluído nos colisores nem recebe sombra. `CENARIO.md` descreve os novos elementos, texturas e limites.

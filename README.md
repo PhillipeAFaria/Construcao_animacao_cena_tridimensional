@@ -1,4 +1,4 @@
-# Órbita — Parque Jurássico 1.4
+# Órbita — Parque Jurássico 1.5
 
 Rover explorador + dinossauro de blocos. Versão com colisões entre os personagens e folga para a cauda, preservando as melhorias baseadas nos três PDFs das aulas; as versões anteriores permanecem separadas. Consulte `APLICACAO_DOS_PDFS.md` para a relação entre páginas, conceitos e código.
 
@@ -90,6 +90,7 @@ Se a janela falhar antes de aparecer, confira a versão do Python e atualize o d
 | Shadow mapping em duas passagens | `py3d/core_ext/renderer.py`: `Renderer.render`; `py3d/light/shadow.py`; `shaders/depth.vert`, `shaders/depth.frag` |
 | Textura de profundidade e framebuffer | `py3d/core_ext/render_target.py`: `RenderTarget` |
 | Painel de estado e linha do tempo em textura 2D | `main.py`: `HUD`; `py3d/material/texture.py` |
+| Cenário detalhado e céu | `scenery.py`, `sky.py`, `shaders/sky.*`; `CENARIO.md` |
 | Feixe e luz de reconhecimento | `scanner.py`; `shaders/scanner.*`; contribuição focal em `shaders/phong.frag`; `SCANNER.md` |
 | Colisões e folga para a cauda | `collision.py`; `simulation.py`: `Simulation.update`; `main.py`: `Application.can_advance`; `COLISOES.md` |
 | Cores por vértice e gradientes | `geometry_tools.py`; `shaders/phong.vert`, `shaders/phong.frag` |
@@ -135,7 +136,7 @@ Resultados medidos e limites estão em `VALIDACAO.md`. Os arquivos JSON e imagen
 
 ## Declaração de uso de inteligência artificial
 
-Foi utilizada a ferramenta **OpenAI Codex** para planejar a cena; escrever `scanner.py`, `collision.py`, `main.py`, `models.py`, `simulation.py`, `appearance.py`, `geometry_tools.py`, scripts de instalação, testes e documentação; gerar as texturas PNG por scripts; adaptar componentes e shaders de `py3d/`; executar validações e analisar capturas. O framework de terceiros foi atribuído separadamente e não é declarado como autoria da dupla ou da IA. Os integrantes devem revisar o código, testar na máquina da apresentação, registrar suas contribuições reais e compreender os trechos antes da entrega. Não afirmar que os testes automáticos substituem sua revisão individual.
+Foi utilizada a ferramenta **OpenAI Codex** para planejar a cena; escrever `scenery.py`, `sky.py`, `scanner.py`, `collision.py`, `main.py`, `models.py`, `simulation.py`, `appearance.py`, `geometry_tools.py`, scripts de instalação, testes e documentação; gerar as texturas PNG por scripts; adaptar componentes e shaders de `py3d/`; executar validações e analisar capturas. O framework de terceiros foi atribuído separadamente e não é declarado como autoria da dupla ou da IA. Os integrantes devem revisar o código, testar na máquina da apresentação, registrar suas contribuições reais e compreender os trechos antes da entrega. Não afirmar que os testes automáticos substituem sua revisão individual.
 
 ## Base preservada da versão 1.1
 
@@ -181,3 +182,9 @@ Use o novo ZIP em uma pasta separada e prepare o ambiente dessa pasta. O detecto
 O sensor agora emite automaticamente um feixe azul-ciano durante o reconhecimento, com halo na lente e iluminação focal na superfície do alvo. A origem e a direção seguem a matriz do sensor. O feixe respeita a profundidade da cena e seu raio central termina na primeira caixa do alvo encontrada, ou no alcance máximo. A pausa congela a varredura e o movimento da luz; a câmera permanece livre.
 
 As colisões da versão 1.3 permanecem ativas. A luz fica em uma passagem separada e não vira um obstáculo físico. Nenhuma dependência ou controle novo foi acrescentado. Veja `SCANNER.md` para shaders, uniforms, limitações e testes. A geração do efeito e as alterações foram desenvolvidas com apoio do OpenAI Codex, como declarado acima.
+
+## Cenário da versão 1.5
+
+O parque ganhou estação de pesquisa, portal de chegada, calçada, bancos, lago ornamental, palmeiras, samambaias e relevo. Um céu com gradiente e nuvens suaves complementa o fundo. O corredor do rover e do dinossauro foi mantido livre; a interação, o scanner luminoso e as colisões continuam funcionando.
+
+O ambiente estático foi agrupado por material: 287 malhas passaram a 49, sem agrupar as peças animadas. Consulte `CENARIO.md` para transformações, shaders e validação. A nova placa é original, gerada por `tools/gerar_cenario.py` e incluída em `assets/estacao.png`. Não há novos controles ou dependências.
