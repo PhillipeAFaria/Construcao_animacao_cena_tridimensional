@@ -1,8 +1,10 @@
+# Mantém os dados de um atributo na CPU e seu buffer de vértices na GPU.
 import OpenGL.GL as GL
 import numpy as np
 
 
 class Attribute:
+    # Aloca o VBO e envia os dados iniciais do atributo.
     def __init__(self, data_type, data):
         # type of elements in data array: int | float | vec2 | vec3 | vec4
         self._data_type = data_type
@@ -13,14 +15,17 @@ class Attribute:
         # Upload data immediately
         self.upload_data()
 
+    # Retorna o seguinte dado — valor mantido no lado Python.
     @property
     def data(self):
         return self._data
 
+    # Atualiza o seguinte dado — valor mantido no lado Python.
     @data.setter
     def data(self, data):
         self._data = data
 
+    # Converte valores para float32 e os transfere ao VBO.
     def upload_data(self):
         """ Upload the data to a GPU buffer """
         # Convert data to numpy array format; convert numbers to 32-bit floats
@@ -30,6 +35,7 @@ class Attribute:
         # Store data in currently bound buffer
         GL.glBufferData(GL.GL_ARRAY_BUFFER, data.ravel(), GL.GL_STATIC_DRAW)
 
+    # Configura no VAO a leitura do VBO no local do atributo GLSL.
     def associate_variable(self, program_ref, variable_name):
         """ Associate variable in program with the buffer """
         # Get reference for program variable with given name

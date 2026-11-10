@@ -1,3 +1,4 @@
+# Gera a lateral paramétrica e, quando solicitadas, as tampas.
 import math
 
 from py3d.core.matrix import Matrix
@@ -6,9 +7,11 @@ from py3d.geometry.polygon import PolygonGeometry
 
 
 class CylindricalGeometry(ParametricGeometry):
+    # Amostra a lateral, monta as tampas e orienta a altura no eixo Y.
     def __init__(self, radius_top=1, radius_bottom=1, height=1,
                  radial_segments=32, height_segments=16,
                  closed_top=True, closed_bottom=True):
+        # Converte um ângulo e uma altura normalizados em um ponto da lateral.
         def surface_function(u, v):
             # x = radius * cos(phi),
             # y = radius * sin(phi),

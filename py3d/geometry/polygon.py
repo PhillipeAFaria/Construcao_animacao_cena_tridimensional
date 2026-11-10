@@ -1,3 +1,4 @@
+# Triangula polígonos regulares, usados nas tampas dos cilindros.
 import math
 
 from py3d.geometry.geometry import Geometry
@@ -5,6 +6,7 @@ from py3d.geometry.geometry import Geometry
 
 class PolygonGeometry(Geometry):
     """ Symmetrical polygon inscribed in a circle """
+    # Distribui pontos na circunferência e forma triângulos a partir do centro.
     def __init__(self, sides=3, radius=1, normals_up=True):
         sides = int(sides)
         if sides < 3:
@@ -36,18 +38,22 @@ class PolygonGeometry(Geometry):
         self.add_attribute("vec3", "vertexNormal", normal_data)
         self.add_attribute("vec3", "faceNormal", normal_data)
 
+    # Cria o polígono regular com 3 lados.
     @staticmethod
     def create_triangle_geometry(radius=1):
         return PolygonGeometry(sides=3, radius=radius)
 
+    # Cria o polígono regular com 4 lados.
     @staticmethod
     def create_square_geometry(radius=1):
         return PolygonGeometry(sides=4, radius=radius)
 
+    # Cria o polígono regular com 5 lados.
     @staticmethod
     def create_pentagon_geometry(radius=1):
         return PolygonGeometry(sides=5, radius=radius)
 
+    # Cria o polígono regular com 6 lados.
     @staticmethod
     def create_hexagon_geometry(radius=1):
         return PolygonGeometry(sides=6, radius=radius)

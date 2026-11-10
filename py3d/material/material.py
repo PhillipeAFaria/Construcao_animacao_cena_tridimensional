@@ -1,3 +1,4 @@
+# Armazena programa, uniforms e opções de desenho de um material.
 import OpenGL.GL as GL
 
 from py3d.core.uniform import Uniform
@@ -5,6 +6,7 @@ from py3d.core.utils import Utils
 
 
 class Material:
+    # Cria o programa e registra as matrizes comuns de transformação.
     def __init__(self, vertex_shader_code, fragment_shader_code):
         self._program_ref = Utils.initialize_program(vertex_shader_code, fragment_shader_code)
         # Store Uniform objects, indexed by name of associated variable in shader.
@@ -19,30 +21,37 @@ class Material:
             "drawStyle": GL.GL_TRIANGLES
         }
 
+    # Retorna o seguinte dado — identificador do programa GLSL.
     @property
     def program_ref(self):
         return self._program_ref
 
+    # Retorna o seguinte dado — opções de desenho do material.
     @property
     def setting_dict(self):
         return self._setting_dict
 
+    # Retorna o seguinte dado — uniforms registrados por nome.
     @property
     def uniform_dict(self):
         return self._uniform_dict
 
+    # Registra o tipo e o valor inicial que serão enviados ao programa.
     def add_uniform(self, data_type, variable_name, data):
         self._uniform_dict[variable_name] = Uniform(data_type, data)
 
+    # Resolve as localizações após compilar e vincular o programa.
     def locate_uniforms(self):
         """ Initialize all uniform variable references """
         for variable_name, uniform_object in self._uniform_dict.items():
             uniform_object.locate_variable(self._program_ref, variable_name)
 
+    # Aplica ao OpenGL as opções de desenho próprias deste material.
     def update_render_settings(self):
         """ Configure OpenGL with render settings """
         pass
 
+    # Aplica valores fornecidos pelo chamador às opções conhecidas.
     def set_properties(self, property_dict):
         """
         Convenience method for setting multiple material "properties"

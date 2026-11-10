@@ -1,3 +1,4 @@
+# Identifica este diretório como um pacote Python do framework.
 __dependencies__ = {
     'necessary':
         {

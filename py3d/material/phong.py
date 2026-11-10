@@ -1,3 +1,4 @@
+# Configura iluminação Phong, textura, sombras e luz de reconhecimento.
 from pathlib import Path
 import OpenGL.GL as GL
 
@@ -8,6 +9,7 @@ class PhongMaterial(LightedMaterial):
     """
     Phong material with at least one light source (or more)
     """
+    # Registra parâmetros de cor, textura, scanner, iluminação e sombra.
     def __init__(self,
                  texture=None,
                  property_dict=None,
@@ -58,14 +60,17 @@ class PhongMaterial(LightedMaterial):
         self.setting_dict["lineWidth"] = 1
         self.set_properties(property_dict)
 
+    # Fornece o código GLSL da etapa de vértices para este material.
     @property
     def vertex_shader_code(self):
         return (Path(__file__).resolve().parents[2] / "shaders/phong.vert").read_text(encoding="utf-8")
 
+    # Fornece o código GLSL da etapa de fragmentos para este material.
     @property
     def fragment_shader_code(self):
         return (Path(__file__).resolve().parents[2] / "shaders/phong.frag").read_text(encoding="utf-8")
 
+    # Aplica ao OpenGL as opções de desenho próprias deste material.
     def update_render_settings(self):
         if self.setting_dict["doubleSide"]:
             GL.glDisable(GL.GL_CULL_FACE)

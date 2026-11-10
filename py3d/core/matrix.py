@@ -1,3 +1,4 @@
+# Gera matrizes homogêneas 4×4 de transformação e projeção.
 import numpy as np
 import math
 
@@ -7,6 +8,7 @@ class Matrix:
     Contains static methods to generate matrices (with the numpy library) corresponding
     to identity, translation, rotation (around each axis), scaling, and projection.
     """
+    # Cria a matriz neutra das composições.
     @staticmethod
     def make_identity():
         return np.array(
@@ -16,6 +18,7 @@ class Matrix:
              [0, 0, 0, 1]]
         ).astype(float)
 
+    # Guarda o deslocamento na última coluna da matriz homogênea.
     @staticmethod
     def make_translation(x, y, z):
         return np.array(
@@ -25,6 +28,7 @@ class Matrix:
              [0, 0, 0, 1]]
         ).astype(float)
 
+    # Gira o plano YZ em torno de X. O ângulo está em radianos.
     @staticmethod
     def make_rotation_x(angle):
         c = math.cos(angle)
@@ -36,6 +40,7 @@ class Matrix:
              [0,  0,  0,  1]]
         ).astype(float)
 
+    # Gira o plano XZ em torno de Y. O ângulo está em radianos.
     @staticmethod
     def make_rotation_y(angle):
         c = math.cos(angle)
@@ -47,6 +52,7 @@ class Matrix:
              [0,  0,  0,  1]]
         ).astype(float)
 
+    # Gira o plano XY em torno de Z. O ângulo está em radianos.
     @staticmethod
     def make_rotation_z(angle):
         c = math.cos(angle)
@@ -58,6 +64,7 @@ class Matrix:
              [0,  0,  0,  1]]
         ).astype(float)
 
+    # Aplica uma escala uniforme aos três eixos.
     @staticmethod
     def make_scale(s):
         return np.array(
@@ -67,6 +74,7 @@ class Matrix:
              [0, 0, 0, 1]]
         ).astype(float)
 
+    # Constrói o volume de visão com ângulo, proporção e planos de recorte.
     @staticmethod
     def make_perspective(angle_of_view=60, aspect_ratio=1, near=0.1, far=1000):
         a = angle_of_view * math.pi / 180.0
@@ -80,6 +88,7 @@ class Matrix:
              [0, 0, -1, 0]]
         ).astype(float)
 
+    # Mapeia um volume retangular para o espaço de recorte sem perspectiva.
     @staticmethod
     def make_orthographic(left=-1, right=1, bottom=-1, top=1, near=-1, far=1):
         return np.array(
@@ -89,6 +98,7 @@ class Matrix:
              [0, 0, 0, 1]]
         ).astype(float)
 
+    # Monta uma base orientada para o alvo com posição e vetores ortogonais.
     @staticmethod
     def make_look_at(position, target):
         world_up = [0, 1, 0]

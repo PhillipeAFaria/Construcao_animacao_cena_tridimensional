@@ -1,3 +1,4 @@
+# Entrada da aplicação. Integra janela, entrada, simulação, renderização e painel.
 """Parque de reconhecimento: Python/Pygame/OpenGL + framework Stemkoski/Pascale."""
 import argparse
 import json
@@ -24,7 +25,9 @@ from scenery import decorate,batch_static
 from sky import Sky
 from py3d.core_ext.object3d import Object3D
 
+# Resolve recursos em relação ao arquivo principal, independentemente do diretório do terminal.
 ROOT=Path(__file__).resolve().parent
+# As mensagens usam os mesmos índices das etapas da simulação.
 LABELS=('01 / APROXIMACAO', '02 / RECONHECIMENTO', '03 / RESPOSTA',
         '04 / ACOMPANHAMENTO', '05 / MISSAO CONCLUIDA')
 DESCRIPTIONS=('Rover avanca ate a distancia de reconhecimento.',
@@ -33,9 +36,12 @@ DESCRIPTIONS=('Rover avanca ate a distancia de reconhecimento.',
  'Virada concluida: rover acompanha a distancia constante.',
  'Encontro finalizado. Pressione R para repetir.')
 
+# Coordena o estado da aplicação com os recursos gráficos.
 class Application:
+    # Abre o contexto OpenGL antes de construir qualquer buffer, textura ou shader.
     def __init__(self, args):
         self.args=args
+        # Pygame cuida da janela e dos eventos. O contexto usa OpenGL 3.3 core e buffer duplo.
         pygame.init()
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MAJOR_VERSION,3)
         pygame.display.gl_set_attribute(pygame.GL_CONTEXT_MINOR_VERSION,3)
@@ -44,6 +50,7 @@ class Application:
         self.size=(1200,760)
         pygame.display.set_mode(self.size,pygame.OPENGL|pygame.DOUBLEBUF)
         pygame.display.set_caption('ORBITA / Parque Jurassico | Phillipe Almeida Faria e Thiago Ferreira de Souza Junior')
+        # A câmera principal é perspectiva. Os personagens são raízes separadas na mesma cena.
         self.renderer=Renderer([.11,.18,.22])
         self.scene=Scene()
         self.camera=Camera(angle_of_view=48, aspect_ratio=self.size[0]/self.size[1],far=100)
@@ -53,16 +60,19 @@ class Application:
         self.dino,self.legs,self.tail=self.models.dinosaur(self.scene)
         self.collisions=CollisionWorld(self.rover,self.dino)
         self.last_collision_contacts=[]
+        # A luz ambiente dá luminosidade de base. A direcional também gera o mapa de sombras.
         self.scene.add(AmbientLight(color=[.40,.43,.44]))
         light=DirectionalLight(color=[.85,.80,.68],direction=[-6,-12,-7])
         light.set_position([6,12,7]); light.look_at([0,0,0]); self.scene.add(light)
         self.renderer.enable_shadows(light,strength=.58,resolution=(2048,2048))
         self.renderer.shadow_object.camera.set_orthographic(-14,14,-12,12,.1,40)
         self.renderer.shadow_object._bias=.0018
+        # Depois de montar a cena, os materiais ficam disponíveis para o laboratório e o scanner.
         self.environment()
         self.appearance=Appearance(self.scene,[self.rover,self.dino]+[mesh for mesh,_ in self.scan_ring])
         self.scanner=Scanner(self.sensor,self.scene,self.collisions.dinosaur)
         self.sky=Sky()
+        # Azimute, elevação e raio definem a órbita em torno do alvo.
         self.azimuth=-.65; self.elevation=.46; self.radius=17
         self.target=[-.6,1,0]
         self.camera_mode='LIVRE'
@@ -74,9 +84,11 @@ class Application:
         self.hud=HUD(self.size)
         self.clock=pygame.time.Clock()
 
+    # Monta piso, pista, marcos e decoração. O anel animado fica fora dos lotes estáticos.
     def environment(self):
         self.environment_root=Object3D()
         self.scene.add(self.environment_root)
+        # O chão nasce no plano XY e é rotacionado para XZ. O eixo Y fica vertical.
         ground=RectangleGeometry(width=28,height=20)
         apply_gradient(ground,low=(.72,.77,.73),high=(1,1,.96),axis=0)
         material=PhongMaterial(texture=Texture(str(ROOT/'assets/terreno.png')),
@@ -95,6 +107,7 @@ class Application:
             self.models.part(self.environment_root,(-.8,.035,z),(18,.02,.065),(.86,.79,.44))
         for x in range(-9,9,2):
             self.models.part(self.environment_root,(x,.04,0),(.65,.02,.06),(.68,.75,.63))
+        # Coordenadas e escalas distribuem rochas fora da faixa de circulação.
         for x,z,s in ((-8,-5,1.1),(6,-5,.9),(9,4,1.4),(-10,4,.7),(2,-6,.6)):
             rock=self.models.part(self.environment_root,(x,s*.32,z),(s,s*.64,s*.8),(.40,.45,.39))
             rock.rotate_y(x*.3)
@@ -108,6 +121,7 @@ class Application:
             for y,w,color in ((1.5,1.3,(.24,.43,.31)),(2.05,1.05,(.32,.53,.36)),(2.5,.65,(.43,.62,.38))):
                 foliage=self.models.part(self.environment_root,(x,y*s,z),(w*s,.65*s,w*s),color)
                 foliage.rotate_y(.25*x)
+        # Postes e barras repetidos compõem a cerca ao fundo.
         for x in range(-10,11,2):
             self.models.part(self.environment_root,(x,.45,-4.2),(.10,.90,.10),(.54,.63,.52))
         for y in (.32,.72):
@@ -115,15 +129,18 @@ class Application:
         for x in (-5.8,-3.2):
             self.models.part(self.environment_root,(x,1.0,-4.8),(.13,2.0,.13),(.20,.31,.31))
         self.models.part(self.environment_root,(-4.5,2.05,-4.82),(3.5,1.30,.15),(.12,.22,.24))
+        # Uma placa usa a imagem original aplicada a um retângulo independente.
         sign_material=PhongMaterial(texture=Texture(str(ROOT/'assets/placa.png')),
             number_of_light_sources=2,use_shadow=True,property_dict={'specularStrength':.02})
         sign=Mesh(RectangleGeometry(width=3.3,height=1.12),sign_material)
         sign.set_position([-4.5,2.05,-4.73]); self.environment_root.add(sign)
+        # Marcas de partida e chegada são pequenas peças espaçadas em círculo.
         for x in (-7,5.6):
             for i in range(20):
                 a=i*2*math.pi/20
                 mark=self.models.part(self.environment_root,(x+.85*math.cos(a),.045,.85*math.sin(a)),(.18,.025,.055),(.74,.79,.48))
                 mark.rotate_y(-a-math.pi/2)
+        # O anel luminoso é animado e permanece fora do agrupamento estático e do mapa de sombras.
         self.scan_ring=[]
         for i in range(24):
             a=i*2*math.pi/24
@@ -133,36 +150,43 @@ class Application:
         decorate(self.environment_root,self.models)
         self.environment_batch=batch_static(self.environment_root,[mesh for mesh,_ in self.scan_ring])
 
+    # Converte os valores da pose em matrizes locais dos nós que realmente serão desenhados.
     def apply_pose(self,p=None):
         p=self.sim.pose() if p is None else p
         transform(self.rover,(p.rover_x,0,-.75))
         transform(self.dino,(p.dino_x,p.body_bob,.75),yaw=p.dino_yaw)
         transform(self.sensor,(.4,2.02,0),yaw=-p.sensor_yaw)
+        # Cada roda mantém seu pivô e recebe somente o novo ângulo de rolagem.
         for wheel in self.wheels:
             transform(wheel,wheel.local_position,roll=p.wheel_angle)
+        # As pernas usam sinais opostos para alternar a passada.
         for i,leg in enumerate(self.legs):
             transform(leg,leg.local_position,pitch=p.leg_angle*(1 if i else -1))
         transform(self.tail,(0,1.30,-.72),yaw=p.tail_angle)
         transform(self.models.head,(0,2.15,.51),yaw=p.head_yaw)
         transform(self.models.jaw,(0,.09,.40),pitch=p.jaw_angle)
+        # Cada segmento gira e pulsa em torno do dinossauro nas etapas centrais.
         for mesh,angle in self.scan_ring:
             mesh.visible=self.sim.stage in (1,2)
             a=angle+self.sim.time*.7
             radius=1.45+.08*math.sin(self.sim.time*5)
             transform(mesh,(p.dino_x+radius*math.cos(a),.065,.75+radius*math.sin(a)),yaw=-a,scale=(.18,.035,.055))
 
+    # Aplica a pose candidata e devolve se ela respeita a margem entre os modelos.
     def can_advance(self,pose):
         self.apply_pose(pose)
         contacts=self.collisions.contacts()
         if contacts:self.last_collision_contacts=contacts
         return not contacts
 
+    # Desenha fundo, objetos iluminados e feixe, nessa ordem. O HUD é composto depois.
     def draw_scene(self):
         self.scanner.update(self.sim,self.appearance.gray)
         self.sky.render()
         self.renderer.render(self.scene,self.camera,clear_color=False)
         self.scanner.render(self.camera)
 
+    # Usa o tempo real para mover a câmera, inclusive quando a simulação está pausada.
     def controls(self,dt):
         keys=pygame.key.get_pressed()
         if any(keys[k] for k in (pygame.K_LEFT,pygame.K_RIGHT,pygame.K_UP,pygame.K_DOWN,
@@ -181,9 +205,11 @@ class Application:
             self.target[1]+r*math.sin(e), self.target[2]+r*math.cos(e)*math.cos(a)])
         self.camera.look_at(self.target)
 
+    # Processa ações discretas do teclado e da roda do mouse. False encerra o loop.
     def handle_event(self,event):
         """Processa comandos da interface; retorna False ao solicitar fechamento."""
         if event.type==pygame.QUIT: return False
+        # Pressionar uma tecla dispara um comando. Teclas mantidas são lidas separadamente.
         if event.type==pygame.KEYDOWN:
             if event.key==pygame.K_ESCAPE: return False
             elif event.key==pygame.K_SPACE: self.sim.paused=not self.sim.paused
@@ -204,6 +230,7 @@ class Application:
             elif event.key==pygame.K_l: self.loop=not self.loop
             elif event.key==pygame.K_LEFTBRACKET: self.speed=max(.25,self.speed/2)
             elif event.key==pygame.K_RIGHTBRACKET: self.speed=min(2.0,self.speed*2)
+            # A comparação alterna a consulta do mapa nos materiais, preservando as fontes de luz.
             elif event.key==pygame.K_F2:
                 self.shadows=not self.shadows
                 for mesh in self.scene.descendant_list:
@@ -215,23 +242,41 @@ class Application:
                 self.camera_mode='ACOMPANHAR'
             elif event.key==pygame.K_HOME:
                 self.azimuth=-.65; self.elevation=.46; self.radius=17; self.target=[-.6,1,0]; self.camera_mode='LIVRE'
+            elif event.key==pygame.K_F11: self.toggle_fullscreen()
             elif event.key==pygame.K_F12: self.pending_capture=True
         if event.type==pygame.MOUSEWHEEL:
             self.radius=max(5,min(32,self.radius-event.y))
         return True
 
+    # Alterna o modo da janela preservando os recursos do contexto OpenGL.
+    def toggle_fullscreen(self):
+        try:
+            pygame.display.toggle_fullscreen()
+        except pygame.error as error:
+            print(f'Não foi possível alternar a tela cheia: {error}')
+            return
+
+        # A janela pode mudar de tamanho mesmo quando a Surface mantém as dimensões iniciais.
+        self.size = pygame.display.get_window_size()
+        width, height = self.size
+        self.camera.set_perspective(angle_of_view=48, aspect_ratio=width / height, far=100)
+        self.hud.resize(self.size)
+
+    # Atualiza eventos e simulação, desenha o quadro e apresenta o buffer final.
     def run(self):
         running=True; frame=0
         captures={0:'01_aproximacao',360:'02_sensor',480:'03_resposta',720:'04_acompanhamento',990:'05_final'}
         out=ROOT/'evidencias'
         if self.args.validate: out.mkdir(exist_ok=True)
         while running:
+            # Converte milissegundos em segundos. A validação usa dt fixo e a câmera usa dt real.
             real_dt=self.clock.tick(60)/1000
             dt=1/60 if self.args.validate else real_dt
             for event in pygame.event.get():
                 if not self.handle_event(event): running=False
             if self.loop and self.sim.stage==4 and not self.sim.paused:
                 self.sim.reset()
+            # O avanço testa colisões antes de aplicar a pose aceita e renderizar.
             self.sim.update(dt*self.speed,self.can_advance)
             self.controls(real_dt)
             self.apply_pose()
@@ -243,6 +288,7 @@ class Application:
                 self.capture(out/(captures[frame]+'.png'))
             error=GL.glGetError()
             if error!=GL.GL_NO_ERROR: raise RuntimeError(f'Erro OpenGL: {error}')
+            # Apresenta o quadro completo trocando o buffer de desenho com o visível.
             pygame.display.flip()
             frame+=1
             if self.args.validate and frame>=1000:
@@ -257,6 +303,7 @@ class Application:
                 print(json.dumps(report)); running=False
         pygame.quit()
 
+    # Lê os pixels do quadro, corrige a orientação vertical e salva um PNG.
     def capture(self,path):
         path=Path(path)
         path.parent.mkdir(parents=True,exist_ok=True)
@@ -264,8 +311,10 @@ class Application:
         image=pygame.image.fromstring(pixels,self.size,'RGB',True)
         pygame.image.save(image,str(path))
 
+# Painel em uma textura RGBA renderizada por uma câmera ortográfica.
 class HUD:
     """Painel 2D em textura; não participa da passagem de sombras."""
+    # Cria uma superfície transparente com o tamanho da janela e um retângulo para exibi-la.
     def __init__(self,size):
         from py3d.material.texture import TextureMaterial
         self.size=size
@@ -280,7 +329,19 @@ class HUD:
         self.font=pygame.font.SysFont('segoeui',17)
         self.last=None
 
+    # Ajusta a projeção do painel sem esticar a textura em telas de outra proporção.
+    def resize(self, window_size):
+        width, height = window_size
+        base_width, base_height = self.size
+        scale = min(width / base_width, height / base_height)
+        margin_x = (width / scale - base_width) / 2
+        margin_y = (height / scale - base_height) / 2
+        self.camera.set_orthographic(-margin_x, base_width + margin_x,
+                                     -margin_y, base_height + margin_y, -1, 1)
+
+    # Redesenha a textura quando o conteúdo visível muda e a compõe sobre a cena.
     def draw(self,sim,help_on,speed=1.0,camera='LIVRE',loop=False,shadows=True,appearance=None):
+        # A chave de atualização evita reenviar a textura do painel quando nada visível mudou.
         key=(sim.stage,sim.paused,sim.collision_blocked,help_on,int(sim.time*10),speed,camera,loop,shadows,
              appearance.state if appearance else None)
         if key!=self.last:
@@ -295,6 +356,7 @@ class HUD:
             if sim.collision_blocked:
                 pygame.draw.rect(surface,(76,39,25,250),(385,176,460,42),border_radius=10)
                 surface.blit(self.font.render('Movimento bloqueado para evitar colisao. R reinicia.',True,(255,220,162)),(398,185))
+            # Mostra o estado dos modos do laboratório quando o painel está aberto.
             if appearance and appearance.panel:
                 pygame.draw.rect(surface,(12,29,34,247),(22,176,338,246),border_radius=12)
                 surface.blit(self.font.render('LABORATORIO VISUAL  /  F1 fecha',True,mint),(39,189))
@@ -330,13 +392,15 @@ class HUD:
             if help_on:
                 pygame.draw.rect(surface,(12,29,34,245),(22,688,1156,62),border_radius=10)
                 for i,line in enumerate(('ESPACO pausa  /  R reinicia  /  1-2-3 cameras  /  C acompanha  /  [ ] velocidade  /  L repete  /  F1 laboratorio',
-                    'SETAS orbita  /  W-S zoom  /  A-D desloca  /  Q-E altura  /  F2 sombras  /  F12 captura  /  H ajuda  /  ESC sai')):
+                    'SETAS orbita  /  W-S zoom  /  A-D desloca  /  Q-E altura  /  F2 sombras  /  F11 tela cheia  /  F12 captura  /  H ajuda  /  ESC sai')):
                     surface.blit(self.font.render(line,True,ink),(38,695+i*26))
             self.texture.upload_data(); self.last=key
+        # Sobrepõe o painel ao quadro já desenhado e restaura o teste de profundidade.
         GL.glDisable(GL.GL_DEPTH_TEST)
         self.renderer.render(self.scene,self.camera,clear_color=False,clear_depth=False)
         GL.glEnable(GL.GL_DEPTH_TEST)
 
+# Executar o arquivo abre a aplicação. Importá-lo permite reutilizar suas classes.
 if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--validate',action='store_true',help='Executa 1000 quadros com passo fixo e salva evidencias')

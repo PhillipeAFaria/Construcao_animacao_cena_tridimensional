@@ -1,3 +1,4 @@
+// Projeta a superfície de fundo e encaminha as UV normalizadas para o gradiente.
 layout(location=0) in vec3 vertexPosition;
 in vec2 vertexUV;
 uniform mat4 modelMatrix;

@@ -1,7 +1,10 @@
+// Prepara posições em recorte e em mundo, normais, cor, UV e posição relativa à luz.
 
+            // M transforma para mundo, V para vista e P para o espaço de recorte.
             uniform mat4 projectionMatrix;
             uniform mat4 viewMatrix;
             uniform mat4 modelMatrix;
+            // A posição usa o índice zero também no shader de profundidade.
             layout(location=0) in vec3 vertexPosition;
             in vec2 vertexUV;
             in vec3 vertexNormal;
@@ -38,8 +41,10 @@
                 position = vec3(modelMatrix * vec4(vertexPosition, 1));
                 UV = vertexUV * repeatUV + offsetUV;
                 interpolatedColor = vertexColor;
+                // A inversa transposta corrige a normal quando a escala muda por eixo.
                 normal = normalize(transpose(inverse(mat3(modelMatrix))) * vertexNormal);
                 
+                // A segunda transformação projeta o mesmo vértice do ponto de vista da luz.
                 if (useShadow)
                 {
                     vec4 temp0 = shadow0.projectionMatrix * shadow0.viewMatrix * modelMatrix * vec4(vertexPosition, 1);

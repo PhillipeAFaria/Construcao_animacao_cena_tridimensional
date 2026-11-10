@@ -1,3 +1,4 @@
+// Projeta o retângulo do painel e ajusta as UV por escala e deslocamento.
 
             uniform mat4 projectionMatrix;
             uniform mat4 viewMatrix;

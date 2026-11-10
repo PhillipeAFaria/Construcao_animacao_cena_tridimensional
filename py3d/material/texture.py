@@ -1,3 +1,4 @@
+# Carrega o material texturizado que compõe o HUD.
 from pathlib import Path
 import OpenGL.GL as GL
 
@@ -5,6 +6,7 @@ from py3d.material.material import Material
 
 
 class TextureMaterial(Material):
+    # Associa a imagem e os parâmetros de cor e UV ao programa do HUD.
     def __init__(self, texture, property_dict=None):
         vertex_shader_code = (Path(__file__).resolve().parents[2] / "shaders/hud.vert").read_text()
 
@@ -23,6 +25,7 @@ class TextureMaterial(Material):
         self.setting_dict["lineWidth"] = 1
         self.set_properties(property_dict)
 
+    # Aplica ao OpenGL as opções de desenho próprias deste material.
     def update_render_settings(self):
         if self.setting_dict["doubleSide"]:
             GL.glDisable(GL.GL_CULL_FACE)

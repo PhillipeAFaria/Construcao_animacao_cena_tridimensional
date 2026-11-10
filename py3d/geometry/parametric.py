@@ -1,3 +1,4 @@
+# Amostra uma superfície em dois parâmetros e triangula a grade.
 import numpy as np
 from py3d.geometry.geometry import Geometry
 
@@ -8,6 +9,7 @@ class ParametricGeometry(Geometry):
     (x, y, z) = surface_function(u, v),
     where u and v are the parameters
     """
+    # Amostra posições e normais e gera dois triângulos por célula da grade.
     def __init__(self,
                  u_start, u_end, u_resolution,
                  v_start, v_end, v_resolution,
@@ -94,6 +96,7 @@ class ParametricGeometry(Geometry):
         self.add_attribute("vec3", "vertexNormal", vertex_normal_data)
         self.add_attribute("vec3", "faceNormal", face_normal_data)
 
+    # Calcula a direção perpendicular ao triângulo pelo produto vetorial.
     @staticmethod
     def calculate_normal(p0, p1, p2):
         v1 = np.array(p1) - np.array(p0)

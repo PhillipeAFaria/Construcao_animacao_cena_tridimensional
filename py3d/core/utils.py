@@ -1,3 +1,4 @@
+# Consulta o contexto gráfico e compila e vincula os shaders.
 import OpenGL.GL as GL
 
 from collections import namedtuple
@@ -7,6 +8,7 @@ class Utils:
     """
     Static methods to load and compile OpenGL shaders and link to create programs
     """
+    # Lê fabricante, renderizador e versões do contexto gráfico ativo.
     @staticmethod
     def get_system_info():
         vendor = GL.glGetString(GL.GL_VENDOR).decode('utf-8')
@@ -16,6 +18,7 @@ class Utils:
         Result = namedtuple('SystemInfo', ['vendor', 'renderer', 'opengl', 'glsl'])
         return Result(vendor, renderer, opengl, glsl)
 
+    # Compila um estágio GLSL e inclui o log do driver quando há erro.
     @staticmethod
     def initialize_shader(shader_code, shader_type):
         # Specify required OpenGL/GLSL version
@@ -40,6 +43,7 @@ class Utils:
         # Compilation was successful; return shader reference value
         return shader_ref
 
+    # Vincula os estágios de vértice e fragmento em um programa executável.
     @staticmethod
     def initialize_program(vertex_shader_code, fragment_shader_code):
         vertex_shader_ref = Utils.initialize_shader(vertex_shader_code, GL.GL_VERTEX_SHADER)
@@ -65,6 +69,7 @@ class Utils:
         # Linking was successful; return program reference value
         return program_ref
 
+    # Exibe os dados do contexto para diagnóstico.
     @staticmethod
     def print_system_info():
         info = Utils.get_system_info()

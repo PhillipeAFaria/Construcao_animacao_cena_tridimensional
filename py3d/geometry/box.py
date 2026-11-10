@@ -1,7 +1,9 @@
+# Gera uma caixa com faces independentes, coordenadas UV e normais por face.
 from py3d.geometry.geometry import Geometry
 
 
 class BoxGeometry(Geometry):
+    # Gera os dois triângulos de cada face com UV e normal adequados.
     def __init__(self, width=1, height=1, depth=1):
         super().__init__()
         # vertices

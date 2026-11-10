@@ -1,3 +1,6 @@
+# Janela, eventos, relógio, fontes e imagens.
 pygame==2.6.1
+# Chamadas Python para a API de renderização OpenGL.
 PyOpenGL==3.1.10
+# Matrizes, vetores e cálculos de geometria e colisão.
 numpy==2.2.6

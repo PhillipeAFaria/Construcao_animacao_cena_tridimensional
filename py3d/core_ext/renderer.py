@@ -1,3 +1,4 @@
+# Percorre a cena e executa as passagens de profundidade e cor.
 import OpenGL.GL as GL
 import pygame
 
@@ -7,23 +8,26 @@ from py3d.light.shadow import Shadow
 
 
 class Renderer:
+    # Inicializa estado gráfico, cor de limpeza e dimensões da janela.
     def __init__(self, clear_color=(0, 0, 0)):
         GL.glEnable(GL.GL_DEPTH_TEST)
         # required for antialiasing
         GL.glEnable(GL.GL_MULTISAMPLE)
         GL.glClearColor(*clear_color, 1)
-        self._window_size = pygame.display.get_surface().get_size()
         self._clear_color = clear_color
         self._shadows_enabled = False
 
+    # Retorna o seguinte dado — dimensões da janela.
     @property
     def window_size(self):
-        return self._window_size
+        return pygame.display.get_window_size()
 
+    # Retorna o seguinte dado — recursos da passagem de sombras.
     @property
     def shadow_object(self):
         return self._shadow_object
 
+    # Atualiza as matrizes, executa a passagem de sombras quando ativa e desenha as malhas visíveis.
     def render(self, scene, camera, clear_color=True, clear_depth=True, render_target=None):
         # Filter descendents
         descendant_list = scene.descendant_list
@@ -78,7 +82,7 @@ class Renderer:
             # Set render target to window
             # (the value 0 is indicating the framebuffer attached to the window)
             GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
-            GL.glViewport(0, 0, *self._window_size)
+            GL.glViewport(0, 0, *self.window_size)
         else:
             # Set render target properties
             GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, render_target.framebuffer_ref)
@@ -146,6 +150,7 @@ class Renderer:
             mesh.material.update_render_settings()
             GL.glDrawArrays(mesh.material.setting_dict["drawStyle"], 0, mesh.geometry.vertex_count)
 
+    # Cria os recursos da passagem de profundidade para a luz escolhida.
     def enable_shadows(self, shadow_light, strength=0.5, resolution=(512, 512)):
         self._shadows_enabled = True
         self._shadow_object = Shadow(shadow_light, strength=strength, resolution=resolution)

@@ -1,3 +1,4 @@
+# Monta o parque e agrupa as partes estáticas por material e comportamento de sombra.
 """Cenário estático autoral de parque de pesquisa, por composição de primitivas."""
 from math import sin,cos,pi
 from pathlib import Path
@@ -10,6 +11,7 @@ from py3d.geometry.geometry import Geometry
 from py3d.geometry.rectangle import RectangleGeometry
 from py3d.material.phong import PhongMaterial
 
+# Distribui as estruturas e a vegetação fora da faixa percorrida pelos personagens.
 def decorate(root,models):
     """Todos os obstáculos ficam fora do corredor dos personagens."""
     part=models.part
@@ -85,15 +87,19 @@ def decorate(root,models):
             part(root,(x+.25*level,h*(level+.5)/3,z),
                  (width,h/3,width*.55),(.30+.04*level,.39+.04*level,.35+.035*level))
 
+# Transforma os atributos em mundo e reúne as peças estáticas que compartilham material.
 def batch_static(root,exclude=()):
     """Bakes only static meshes, grouping triangles by material/shadow behavior."""
+    # As malhas animadas excluídas mantêm seus próprios nós e matrizes.
     excluded={id(mesh) for mesh in exclude}
     meshes=[n for n in root.descendant_list if isinstance(n,Mesh) and id(n) not in excluded]
     groups={}
     for mesh in meshes:
+        # Cada lote exige o mesmo material e a mesma participação no mapa de sombras.
         key=(id(mesh.material),getattr(mesh,'cast_shadow',True))
         group=groups.setdefault(key,{'material':mesh.material,'shadow':key[1],'arrays':{}})
         matrix=mesh.global_matrix
+        # A inversa transposta conserva a orientação das normais sob escala não uniforme.
         normal_matrix=np.linalg.inv(matrix[:3,:3]).T
         for name,attribute in mesh.geometry.attribute_dict.items():
             data=np.array(attribute.data,dtype=float)
@@ -102,7 +108,9 @@ def batch_static(root,exclude=()):
                 data=data@normal_matrix.T
                 data/=np.maximum(np.linalg.norm(data,axis=1,keepdims=True),1e-12)
             group['arrays'].setdefault(name,[]).append(data)
+        # Retira a malha original depois de copiar seus atributos transformados.
         mesh.parent.remove(mesh)
+    # Cada grupo recebe um novo buffer por atributo e uma única malha.
     for group in groups.values():
         geometry=Geometry()
         for name,arrays in group['arrays'].items():

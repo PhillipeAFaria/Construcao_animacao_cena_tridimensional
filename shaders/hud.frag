@@ -1,3 +1,4 @@
+// Combina a cor-base com a textura RGBA do painel. O alfa controla sua composição.
 
             uniform vec3 baseColor;
             uniform sampler2D textureSampler;

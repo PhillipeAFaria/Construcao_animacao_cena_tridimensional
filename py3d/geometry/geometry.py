@@ -1,9 +1,11 @@
+# Organiza os atributos por vértice e permite transformar ou combinar geometrias.
 import numpy as np
 from py3d.core.attribute import Attribute
 
 
 class Geometry:
     """ Stores attribute data and the total number of vertices """
+    # Inicia a coleção de atributos e a contagem de vértices.
     def __init__(self):
         # Store Attribute objects, indexed by name of associated variable in shader.
         # Shader variable associations set up later and stored in vertex array object in Mesh.
@@ -11,14 +13,17 @@ class Geometry:
         # number of vertices
         self._vertex_count = None
 
+    # Retorna o seguinte dado — atributos da geometria por nome.
     @property
     def attribute_dict(self):
         return self._attribute_dict
 
+    # Retorna o seguinte dado — quantidade de vértices a desenhar.
     @property
     def vertex_count(self):
         return self._vertex_count
 
+    # Cria o atributo e atualiza a contagem quando recebe as posições.
     def add_attribute(self, data_type, variable_name, data):
         attribute = Attribute(data_type, data)
         self._attribute_dict[variable_name] = attribute
@@ -28,6 +33,7 @@ class Geometry:
             # the length of any Attribute object's array of data
             self._vertex_count = len(data)
 
+    # Atualiza os buffers dos atributos solicitados.
     def upload_data(self, variable_names=None):
         if not variable_names:
             variable_names = self._attribute_dict.keys()
@@ -39,6 +45,7 @@ class Geometry:
                 # the length of any Attribute object's array of data
                 self._vertex_count = len(self._attribute_dict[variable_name].data)
 
+    # Verifica se todas as listas descrevem a mesma quantidade de vértices.
     def validate_attributes(self):
         """All enabled streams must describe the same vertices before a VAO is built."""
         positions=self._attribute_dict.get('vertexPosition')
@@ -51,6 +58,7 @@ class Geometry:
             if len(attribute.data)!=count:
                 raise ValueError(f'Atributo {name}: {len(attribute.data)} valores para {count} vertices.')
 
+    # Aplica uma transformação aos dados conforme o espaço usado neste método.
     def apply_matrix(self, matrix):
         """ Transform the data in an attribute using a matrix """
         old_position_data = self._attribute_dict["vertexPosition"].data
@@ -101,6 +109,7 @@ class Geometry:
         # New data must be uploaded
         self._attribute_dict["faceNormal"].upload_data()
 
+    # Acrescenta os atributos correspondentes de outra geometria.
     def merge(self, other_geometry):
         """
         Merge data from attributes of other geometry into this object.

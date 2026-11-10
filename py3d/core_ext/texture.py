@@ -1,8 +1,10 @@
+# Converte imagens Pygame em texturas OpenGL e configura a amostragem.
 import OpenGL.GL as GL
 import pygame
 
 
 class Texture:
+    # Aloca a textura e, se houver caminho, carrega a imagem na GPU.
     def __init__(self, file_name=None, property_dict={}):
         # Pygame object for storing pixel data;
         # can load from image or manipulate directly
@@ -21,22 +23,27 @@ class Texture:
             self.load_image(file_name)
             self.upload_data()
 
+    # Retorna o seguinte dado — superfície de pixels no Pygame.
     @property
     def surface(self):
         return self._surface
 
+    # Atualiza o seguinte dado — superfície de pixels no Pygame.
     @surface.setter
     def surface(self, surface):
         self._surface = surface
 
+    # Retorna o seguinte dado — identificador da textura OpenGL.
     @property
     def texture_ref(self):
         return self._texture_ref
 
+    # Lê o arquivo de imagem para uma superfície Pygame.
     def load_image(self, file_name):
         """ Load image from file """
         self._surface = pygame.image.load(file_name)
 
+    # Aplica valores fornecidos pelo chamador às opções conhecidas.
     def set_properties(self, property_dict):
         """ Set property values """
         if property_dict:
@@ -46,6 +53,7 @@ class Texture:
                 else:  # unknown property type
                     raise Exception("Texture has no property with name: " + name)
 
+    # Envia pixels RGBA à GPU e aplica filtros, repetição e mipmaps.
     def upload_data(self):
         """ Upload pixel data to GPU """
         # Store image dimensions

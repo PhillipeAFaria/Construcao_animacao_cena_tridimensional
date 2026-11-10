@@ -1,4 +1,6 @@
+// Combina material, iluminação Phong, sombra direcional e luz do sensor por fragmento.
         
+            // Estrutura recebida do Python para cada fonte de luz.
             struct Light
             {
                 int lightType;  // 1 = AMBIENT, 2 = DIRECTIONAL, 3 = POINT
@@ -16,6 +18,7 @@
             uniform float specularStrength;
             uniform float shininess;
 
+            // Calcula os termos ambiente, difuso e especular da fonte.
             vec3 calculateLight(Light light, vec3 pointPosition, vec3 pointNormal)
             {
                 float ambient = 0;
@@ -57,6 +60,7 @@
                 return light.color * (ambient + diffuse + specular);
             }
 
+            // Parâmetros do material e modos visuais controlados pela aplicação.
             uniform vec3 baseColor;
             uniform bool useVertexColors;
             uniform float focusFactor;
@@ -76,6 +80,7 @@
             in vec3 normal;
             out vec4 fragColor;
             
+            // Dados da primeira passagem usados para consultar a profundidade vista pela luz.
             struct Shadow
             {
                 // direction of light that casts shadow
@@ -97,6 +102,7 @@
 
             void main()
             {
+                // Forma a cor da superfície antes de aplicar a iluminação.
                 vec4 color = vec4(baseColor, 1.0);
                 if (useVertexColors)
                     color.rgb *= interpolatedColor;
@@ -116,6 +122,7 @@
 				light += calculateLight(light1, position, calcNormal);
                 color *= vec4(light, 1);
                 
+                // Compara o fragmento com a profundidade mais próxima vista pela luz.
                 if (useShadow)
                 {
                     // determine if surface is facing towards light direction
@@ -130,6 +137,7 @@
                         vec2 texel = 1.0 / vec2(textureSize(shadow0.depthTextureSampler, 0));
                         // Slope-aware tolerance reduces acne at grazing angles.
                         float bias = max(shadow0.bias * (1.0 - cosAngle), shadow0.bias * 0.35);
+                        // Conta amostras ocluídas na vizinhança 3×3 para suavizar a borda da sombra.
                         float coverage = 0.0;
                         for (int x = -1; x <= 1; x++)
                             for (int y = -1; y <= 1; y++)
@@ -142,6 +150,7 @@
                 }  
                 
                 // Recognition light: smooth spotlight from the rover sensor.
+                // Adiciona a luz focal com abertura suave, atenuação por distância e incidência na normal.
                 if (scannerActive>0.0) {
                     vec3 ray=position-scannerPosition;
                     float distanceToSensor=length(ray);
@@ -152,6 +161,7 @@
                     color.rgb+=surfaceColor*scannerColor*scannerActive*cone*falloff*(0.3+1.8*diffuse);
                 }
                 // Perceptual comparison, not a clinical model of human vision.
+                // Usa luminância ponderada nos modos de foco e cinza.
                 float luminance = dot(color.rgb, vec3(0.2126, 0.7152, 0.0722));
                 color.rgb = mix(vec3(luminance), color.rgb, focusFactor);
                 color.rgb *= mix(0.60, 1.0, focusFactor);

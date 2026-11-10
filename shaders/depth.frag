@@ -1,3 +1,4 @@
+// Grava gl_FragCoord.z como cor para leitura posterior no shader Phong.
 
         out vec4 fragColor;
         

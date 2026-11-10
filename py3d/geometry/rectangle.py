@@ -1,7 +1,9 @@
+# Gera dois triângulos no plano XY com UV para a imagem inteira.
 from py3d.geometry.geometry import Geometry
 
 
 class RectangleGeometry(Geometry):
+    # Constrói o retângulo alinhado conforme largura, altura e ponto de ancoragem.
     def __init__(self, width=1, height=1, position=(0, 0), alignment=(0.5, 0.5)):
         super().__init__()
         # vertices

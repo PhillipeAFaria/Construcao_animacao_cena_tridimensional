@@ -1,3 +1,4 @@
+// Projeta as malhas emissivas e encaminha UV para calcular intensidade e transparência.
 layout(location=0) in vec3 vertexPosition;
 in vec2 vertexUV;
 uniform mat4 modelMatrix;

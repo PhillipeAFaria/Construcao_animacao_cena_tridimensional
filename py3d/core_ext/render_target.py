@@ -1,3 +1,4 @@
+# Prepara um framebuffer fora da janela para armazenar o mapa de sombras.
 import OpenGL.GL as GL
 import pygame
 
@@ -8,6 +9,7 @@ class RenderTarget:
     """
     Create a framebuffer as the target when rendering
     """
+    # Anexa a textura de cor e o renderbuffer de profundidade ao framebuffer.
     def __init__(self, resolution=(512, 512), texture=None, property_dict=None):
         # Values should equal texture dimensions
         self._width, self._height = resolution
@@ -46,18 +48,22 @@ class RenderTarget:
         if GL.glCheckFramebufferStatus(GL.GL_FRAMEBUFFER) != GL.GL_FRAMEBUFFER_COMPLETE:
             raise Exception("Framebuffer status error")
 
+    # Retorna o seguinte dado — identificador do framebuffer.
     @property
     def framebuffer_ref(self):
         return self._framebuffer_ref
 
+    # Retorna o seguinte dado — altura do alvo em pixels.
     @property
     def height(self):
         return self._height
 
+    # Retorna o seguinte dado — largura do alvo em pixels.
     @property
     def width(self):
         return self._width
 
+    # Retorna o seguinte dado — textura associada ao alvo.
     @property
     def texture(self):
         return self._texture

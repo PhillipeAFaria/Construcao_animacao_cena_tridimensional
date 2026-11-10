@@ -1,7 +1,9 @@
+# Localiza e envia parâmetros aos programas GLSL.
 import OpenGL.GL as GL
 
 
 class Uniform:
+    # Guarda o tipo e o valor do parâmetro antes de localizar seu endereço no programa.
     def __init__(self, data_type, data):
         # type of data:
         # int | bool | float | vec2 | vec3 | vec4
@@ -11,14 +13,17 @@ class Uniform:
         # reference for variable location in program
         self._variable_ref = None
 
+    # Retorna o seguinte dado — valor mantido no lado Python.
     @property
     def data(self):
         return self._data
 
+    # Atualiza o seguinte dado — valor mantido no lado Python.
     @data.setter
     def data(self, data):
         self._data = data
 
+    # Encontra a localização do uniform ou dos campos de uma estrutura.
     def locate_variable(self, program_ref, variable_name):
         """ Get and store reference for program variable with given name """
         if self._data_type == 'Light':
@@ -41,6 +46,7 @@ class Uniform:
         else:
             self._variable_ref = GL.glGetUniformLocation(program_ref, variable_name)
 
+    # Envia o valor pelo comando OpenGL adequado ao tipo do uniform.
     def upload_data(self):
         """ Store data in uniform variable previously located """
         # If the program does not reference the variable, then exit
